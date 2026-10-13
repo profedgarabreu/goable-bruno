@@ -1,7 +1,6 @@
 import type {ReactNode} from 'react';
 import {Sheet,SheetContent,SheetHeader,SheetTitle,SheetDescription} from '@/components/ui/sheet';
 import {Button} from '@/components/ui/button';
-import {Label} from '@/components/ui/label';
 import {Loader2} from 'lucide-react';
 
 export const d=(v:string)=>v.replace(/\D/g,'');
@@ -12,7 +11,7 @@ export function maskFone(v:string){const x=d(v).slice(0,11);if(x.length<=2)retur
 export function erroAmigavel(e:unknown){const m=e instanceof Error?e.message:String(e);try{const j=JSON.parse(m);if(Array.isArray(j))return j.map((x:{message?:string})=>x.message).filter(Boolean).join(' ');}catch{/* plain */}return m||'Não foi possível salvar. Tente novamente.';}
 
 export function Field({label,hint,error,children,className=''}:{label:string;hint?:ReactNode;error?:string|null;children:ReactNode;className?:string}){
- return <div className={`grid gap-1.5 ${className}`}><Label className="text-sm font-medium">{label}</Label>{children}{error?<p className="text-sm text-destructive">{error}</p>:hint?<p className="text-xs text-muted-foreground">{hint}</p>:null}</div>;
+ return <div className={`grid gap-1.5 ${className}`}><label className="grid gap-1.5"><span className="text-sm font-medium">{label}</span>{children}</label>{error?<p className="text-sm text-destructive">{error}</p>:hint?<p className="text-xs text-muted-foreground">{hint}</p>:null}</div>;
 }
 
 export function EditDrawer({open,onOpenChange,title,description,children,onSave,saving,canSave=true}:{open:boolean;onOpenChange:(o:boolean)=>void;title:string;description?:string;children:ReactNode;onSave?:()=>void;saving?:boolean;canSave?:boolean}){
