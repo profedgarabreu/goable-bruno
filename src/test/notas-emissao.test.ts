@@ -1,3 +1,4 @@
+// @vitest-environment node
 import {describe,it,expect} from 'vitest';
 import {montarNota,traduzirErro,type EntradaNota,type NotaPayload} from '@/lib/notas/nota';
 import {MockEmissor,chaveFicticia,type MockRegistro} from '@/lib/notas/emissor/mock';
