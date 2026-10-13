@@ -30,3 +30,5 @@
 - Create batches and notes only via the `nf_criar_lote` database function (advisory lock + batch key + one-active-note-per-appointment unique index); retries reuse `ref_externa`, corrected re-issues get a new one and mark the old note `substituida`, to keep emission idempotent.
 - Each note is processed by an atomic claim (`pendente`→`processando`) before contacting the issuer, and its `ambiente` is fixed at creation, so double clicks, refreshes and webhooks never send twice or switch environment.
 - Keep mock-issuer state in `nf_notas` (sent time, number, key), because server workers are stateless.
+- Deliver notes only through the channel adapters in `src/lib/notas/envio/` (real sender chosen only when its secrets exist, otherwise simulated) and record every attempt in `nf_envios` with the rendered content, so delivery is auditable without real providers.
+- Validate public patient-link CPF digits only via the service-role-only `nf_link_paciente_verificar` function (row lock + failure counter), so guesses are serialized and anon never reads note tables.
