@@ -23,3 +23,6 @@
 - Declare every server function as a literal `createServerFn(...)` chain at its export; factory wrappers hide it from the compiler and make handlers run in the browser.
 - Version fiscal parameters through the `nf_parametro_nova_versao` database function, never in-place edits, so issued notes keep pointing at the exact version used.
 - Mark fictional demo rows with `demo=true` and remove them only through the admin `limparDadosDemo` function before production.
+- Gate admin-created accounts with a short-lived `nf_convites_acesso` row checked by `nf_guard_signup`, because the auth service inserts users before custom app metadata is available to the trigger.
+- Keep the clinic-login write matrix (which tables/columns `consultorio` may change) in `salvarCadastro` and mirror it only cosmetically in the UI, so permissions stay server-authoritative.
+- Process pasted ProntMed records only in memory (`extrairFicha`), drop values not literally present in the text, and audit only changed patient fields, so health record text is never persisted.

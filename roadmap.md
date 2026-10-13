@@ -20,3 +20,10 @@ Confirmation-email delivery to a real mailbox is not verified; confirmation rema
 - [x] Private buckets notas and importacoes.
 - [x] Core server functions, CRUD backend, limparDadosDemo, operator screen reading nf_operadores.
 - [x] Tests and live permission checks.
+
+## M2 — Configurações + Pacientes
+- [x] 8 abas de Configurações com permissões por papel
+- [x] Pacientes com busca, filtros, ViaCEP e CPF duplicado
+- [x] Completar pela ficha (IA) sem guardar o texto
+- [x] Faixa de alíquota em todas as telas internas
+- [x] Textos de envio em tabela própria
