@@ -7,8 +7,5 @@ export const createClinicUser=createServerFn({method:'POST'}).middleware([requir
  const {supabaseAdmin}=await import('@/integrations/supabase/client.server');
  const {error:creationError}=await supabaseAdmin.auth.admin.createUser({email:data.email,password:data.password,email_confirm:false,user_metadata:{nome:data.nome},app_metadata:{nf_admin_created:true}});
  if(creationError)return {ok:false,message:'Não foi possível criar o acesso. Confira se o e-mail já está cadastrado.'};
- const {error:inviteError}=await supabaseAdmin.auth.admin.generateLink({type:'signup',email:data.email,password:data.password});
- // Account confirmation is still required. Confirmation mail is requested through the public resend flow.
- if(inviteError) return {ok:true,message:'Acesso criado. A confirmação do e-mail deve ser solicitada na tela de login.'};
  return {ok:true,message:'Acesso criado. Solicite a confirmação do e-mail na tela de login.'};
 });
