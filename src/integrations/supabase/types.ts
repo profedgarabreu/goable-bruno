@@ -261,6 +261,7 @@ export type Database = {
           created_at: string
           email_remetente: string | null
           emissor_modo: Database["public"]["Enums"]["nf_ambiente"]
+          envio_automatico: boolean
           id: boolean
           inscricao_municipal: string | null
           municipio_ibge: string
@@ -278,6 +279,7 @@ export type Database = {
           created_at?: string
           email_remetente?: string | null
           emissor_modo?: Database["public"]["Enums"]["nf_ambiente"]
+          envio_automatico?: boolean
           id?: boolean
           inscricao_municipal?: string | null
           municipio_ibge: string
@@ -295,6 +297,7 @@ export type Database = {
           created_at?: string
           email_remetente?: string | null
           emissor_modo?: Database["public"]["Enums"]["nf_ambiente"]
+          envio_automatico?: boolean
           id?: boolean
           inscricao_municipal?: string | null
           municipio_ibge?: string
@@ -311,36 +314,48 @@ export type Database = {
       }
       nf_envios: {
         Row: {
+          anexos: Json
+          assunto: string | null
           canal: Database["public"]["Enums"]["nf_canal"]
+          conteudo_renderizado: string | null
           created_at: string
           destino: string
           enviado_em: string | null
           erro: string | null
           id: string
+          link_id: string | null
           nota_id: string
           provider_id: string | null
           status: string
           updated_at: string
         }
         Insert: {
+          anexos?: Json
+          assunto?: string | null
           canal: Database["public"]["Enums"]["nf_canal"]
+          conteudo_renderizado?: string | null
           created_at?: string
           destino: string
           enviado_em?: string | null
           erro?: string | null
           id?: string
+          link_id?: string | null
           nota_id: string
           provider_id?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
+          anexos?: Json
+          assunto?: string | null
           canal?: Database["public"]["Enums"]["nf_canal"]
+          conteudo_renderizado?: string | null
           created_at?: string
           destino?: string
           enviado_em?: string | null
           erro?: string | null
           id?: string
+          link_id?: string | null
           nota_id?: string
           provider_id?: string | null
           status?: string
@@ -399,6 +414,50 @@ export type Database = {
             columns: ["operador_id"]
             isOneToOne: false
             referencedRelation: "nf_operadores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nf_links_paciente: {
+        Row: {
+          acessado_em: string | null
+          created_at: string
+          expira_em: string
+          id: string
+          nota_id: string
+          revogado: boolean
+          tentativas_falhas: number
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          acessado_em?: string | null
+          created_at?: string
+          expira_em?: string
+          id?: string
+          nota_id: string
+          revogado?: boolean
+          tentativas_falhas?: number
+          token: string
+          updated_at?: string
+        }
+        Update: {
+          acessado_em?: string | null
+          created_at?: string
+          expira_em?: string
+          id?: string
+          nota_id?: string
+          revogado?: boolean
+          tentativas_falhas?: number
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nf_links_paciente_nota_id_fkey"
+            columns: ["nota_id"]
+            isOneToOne: false
+            referencedRelation: "nf_notas"
             referencedColumns: ["id"]
           },
         ]
@@ -1176,6 +1235,10 @@ export type Database = {
         Returns: boolean
       }
       nf_hoje: { Args: never; Returns: string }
+      nf_link_paciente_verificar: {
+        Args: { _digitos: string; _token: string }
+        Returns: Json
+      }
       nf_mock_proximo_numero: { Args: never; Returns: number }
       nf_parametro_nova_versao: {
         Args: { _dados: Json; _id: string }
