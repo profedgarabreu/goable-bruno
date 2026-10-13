@@ -101,11 +101,13 @@ export const contadoresMenu=createServerFn({method:'POST'}).middleware([requireS
 // ---- Demo cleanup preview ----
 export const contarDadosDemo=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).handler(async({context})=>{
  const db=context.supabase;await exigirPapel(db,context.userId,true);
- const ats=okList(await db.from('nf_atendimentos').select('id').eq('demo',true));
- const pac=await db.from('nf_pacientes').select('id',{count:'exact',head:true}).eq('demo',true);if(pac.error)throw new Error(pac.error.message);
- const notas=ats.length?okList(await db.from('nf_notas').select('id,pdf_path,xml_path').in('atendimento_id',ats.map(a=>a.id))):[];
- const env=notas.length?await db.from('nf_envios').select('id',{count:'exact',head:true}).in('nota_id',notas.map(n=>n.id)):{count:0,error:null};
- if(env.error)throw new Error(env.error.message);
- return {pacientes:pac.count??0,atendimentos:ats.length,notas:notas.length,envios:env.count??0,arquivos:notas.reduce((s,n)=>s+(n.pdf_path?1:0)+(n.xml_path?1:0),0)};
+ const [ats,pac,notas,env]=await Promise.all([
+  db.from('nf_atendimentos').select('id',{count:'exact',head:true}).eq('demo',true),
+  db.from('nf_pacientes').select('id',{count:'exact',head:true}).eq('demo',true),
+  db.from('nf_notas').select('pdf_path,xml_path,a:nf_atendimentos!inner(demo)').eq('a.demo',true).limit(10000),
+  db.from('nf_envios').select('id,n:nf_notas!inner(a:nf_atendimentos!inner(demo))',{count:'exact',head:true}).eq('n.a.demo',true)]);
+ for(const r of [ats,pac,notas,env])if(r.error)throw new Error(r.error.message);
+ const ns=notas.data??[];
+ return {pacientes:pac.count??0,atendimentos:ats.count??0,notas:ns.length,envios:env.count??0,arquivos:ns.reduce((s,n)=>s+(n.pdf_path?1:0)+(n.xml_path?1:0),0)};
 });
 void ok;
