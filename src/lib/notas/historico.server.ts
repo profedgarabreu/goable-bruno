@@ -35,7 +35,7 @@ const statusLabel:Record<string,string>={autorizada:'Autorizada',cancelada:'Canc
 function formatar(ws:XLSX.WorkSheet,col:number,fmt:string,desde=1){const r=XLSX.utils.decode_range(ws['!ref']!);for(let i=desde;i<=r.e.r;i++){const c=ws[XLSX.utils.encode_cell({r:i,c:col})];if(c&&(c.t==='n'||c.t==='d'))c.z=fmt;}}
 
 /** Accountant workbook: Resumo / Notas / Canceladas, numeric money cells with BRL format and real date cells. */
-export function montarPlanilha(competencia:string,rows:LinhaHistorico[],emitente:{razao_social:string;cnpj:string|null}|null):Uint8Array{
+export function montarPlanilha(competencia:string,rows:LinhaHistorico[],emitente:{razao_social:string;cnpj:string|null}|null):string{
  const s=resumirHistorico(rows,competencia);const wb=XLSX.utils.book_new();
  const [y,m]=competencia.split('-');
  const res:(string|number|null)[][]=[['Notas BNaves — Fechamento do mês'],[],['Competência',`${m}/${y}`],['Emitente',emitente?.razao_social??''],['CNPJ',fmtCNPJ(emitente?.cnpj??null)],
@@ -57,5 +57,5 @@ export function montarPlanilha(competencia:string,rows:LinhaHistorico[],emitente
  const wc=XLSX.utils.aoa_to_sheet([['Número','Data de competência','Tomador','CPF','Serviço','Valor','Status','Motivo','Nota substituta'],...canc.map(r=>[r.numero??'',dt(r.data),r.paciente,fmtCPF(r.cpf),r.servico,r.valor,statusLabel[r.status]??r.status,r.motivo??'',r.substituta??''])],{cellDates:true});
  formatar(wc,1,DATA);formatar(wc,5,MOEDA);wc['!cols']=[{wch:10},{wch:14},{wch:32},{wch:16},{wch:22},{wch:14},{wch:12},{wch:32},{wch:14}];
  XLSX.utils.book_append_sheet(wb,wc,'Canceladas');
- return new Uint8Array(XLSX.write(wb,{type:'array',bookType:'xlsx'}) as ArrayBuffer);
+ return XLSX.write(wb,{type:'base64',bookType:'xlsx'}) as string;
 }

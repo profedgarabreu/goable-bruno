@@ -9,7 +9,6 @@ import {calcularBloqueios,competenciaDe,mascararCPF} from './rules';
 const uuid=z.string().uuid();
 const filtros={competencia:z.string().refine(competenciaValida,'Competência inválida'),medico_id:uuid.nullish(),servico_id:uuid.nullish(),forma:z.enum(['pix','credito','debito','dinheiro','outro']).nullish()};
 const op={operador_id:uuid.nullish()};
-const b64=(u:Uint8Array)=>{let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode(...u.subarray(i,i+0x8000));return btoa(s);};
 
 export const historicoMes=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object(filtros)).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId);
@@ -27,9 +26,9 @@ export const exportarPlanilhaMes=createServerFn({method:'POST'}).middleware([req
  const db=context.supabase;await exigirPapel(db,context.userId);
  const [rows,em]=await Promise.all([carregarMes(db,data.competencia,data),dadosEmitente(db)]);
  const nome=nomeExportacao(data.competencia,em?.emissor_modo??'mock','xlsx');
- const bytes=montarPlanilha(data.competencia,rows,em);
+ const base64=montarPlanilha(data.competencia,rows,em);
  await auditar(db,data.operador_id,'exportacao_mes','nf_notas',null,null,{tipo:'xlsx',competencia:data.competencia,arquivo:nome,notas:rows.length});
- return {nome,base64:b64(bytes)};
+ return {nome,base64};
 });
 
 /** ZIP is assembled in the browser: this returns the workbook plus short-lived signed URLs for each authorized note's PDF/XML. */
@@ -45,7 +44,7 @@ export const pacoteMes=createServerFn({method:'POST'}).middleware([requireSupaba
  const planilha=nomeExportacao(data.competencia,modo,'xlsx');
  const nome=nomeExportacao(data.competencia,modo,'zip');
  await auditar(db,data.operador_id,'exportacao_mes','nf_notas',null,null,{tipo:'zip',competencia:data.competencia,arquivo:nome,notas:autorizadas.length,arquivos:arquivos.length});
- return {nome,planilha:{nome:planilha,base64:b64(montarPlanilha(data.competencia,rows,em))},arquivos};
+ return {nome,planilha:{nome:planilha,base64:montarPlanilha(data.competencia,rows,em)},arquivos};
 });
 
 export const exportarCsvMes=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({...filtros,incluirCanceladas:z.boolean().default(false),...op})).handler(async({context,data})=>{
