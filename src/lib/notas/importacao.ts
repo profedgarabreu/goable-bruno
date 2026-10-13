@@ -47,7 +47,9 @@ export function casarPaciente(linha:{paciente:string;cpf?:string|null},pacientes
  const alvo=normalizarTexto(linha.paciente);
  const exato=pacientes.filter(x=>normalizarTexto(x.nome)===alvo);
  if(exato.length===1)return {estado:'encontrado',id:exato[0]!.id,nome:exato[0]!.nome};
- const candidatos=pacientes.map(p=>({id:p.id,nome:p.nome,score:similaridadeNome(p.nome,linha.paciente)})).filter(c=>c.score>=0.75).sort((a,b)=>b.score-a.score).slice(0,5);
+ const primeiro=(n:string)=>normalizarTexto(n).split(' ')[0]??'';
+ // Candidate only when the first names agree and the whole names are close.
+ const candidatos=pacientes.filter(p=>similaridadeNome(primeiro(p.nome),primeiro(linha.paciente))>=0.8).map(p=>({id:p.id,nome:p.nome,score:similaridadeNome(p.nome,linha.paciente)})).filter(c=>c.score>=0.8).sort((a,b)=>b.score-a.score).slice(0,5);
  return candidatos.length?{estado:'possivel',candidatos}:{estado:'novo'};
 }
 

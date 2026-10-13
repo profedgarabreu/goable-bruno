@@ -34,6 +34,8 @@ describe('importação',()=>{
   expect(casarPaciente({paciente:'jose antonio pereira'},ps)).toMatchObject({estado:'encontrado',id:'p1'});
   expect(casarPaciente({paciente:'Maria Aparecida S Lima'},ps).estado).toBe('possivel');
   expect(casarPaciente({paciente:'Roberto Almeida'},ps).estado).toBe('novo');
+  expect(casarPaciente({paciente:'Roberto Almeida'},[{id:'x',nome:'Paulo Roberto Almeida',cpf:null}]).estado).toBe('novo');
+  expect(casarPaciente({paciente:'Luciana Ferreira Dias'},[{id:'y',nome:'Ana Lúcia Ferreira',cpf:null}]).estado).toBe('novo');
  });
  it('dedup pelo mesmo hash (data+paciente+serviço+valor+quantidade)',()=>{
   const ex=[{data_atendimento:'2026-10-13',paciente_id:'p1',servico_id:'s1',valor:470,quantidade:1}];
