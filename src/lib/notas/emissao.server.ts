@@ -72,7 +72,8 @@ export async function aplicarResultado(db:Db,notaId:string,r:ResultadoEmissao,au
  const [u1,u2]=await Promise.all([st.upload(pdfPath,pdf,{contentType:'application/pdf',upsert:true}),st.upload(xmlPath,new TextEncoder().encode(xml),{contentType:'application/xml',upsert:true})]);
  if(u1.error||u2.error)throw new Error(`Falha ao guardar PDF/XML: ${(u1.error??u2.error)!.message}`);
  const fin=okList(await db.from('nf_notas').update({status:'autorizada',pdf_path:pdfPath,xml_path:xmlPath,mensagem_erro:null}).eq('id',n.id).in('status',['pendente','processando']).select('id,numero'));
- if(fin.length){ok(await db.from('nf_atendimentos').update({status:'emitido'}).eq('id',n.atendimento_id).eq('status','emitindo'));await auditar('nota_autorizada','nf_notas',n.id,{status:n.status},{status:'autorizada',numero:fin[0]?.numero});}
+ if(fin.length){ok(await db.from('nf_atendimentos').update({status:'emitido'}).eq('id',n.atendimento_id).eq('status','emitindo'));await auditar('nota_autorizada','nf_notas',n.id,{status:n.status},{status:'autorizada',numero:fin[0]?.numero});
+  const {envioAutomatico}=await import('./envio/envio.server');await envioAutomatico(db,n.id,auditar);}
  return {status:'autorizada',mensagem:null};
 }
 
