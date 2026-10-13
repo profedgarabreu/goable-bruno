@@ -49,7 +49,7 @@ function Importar(){
 function Passo1({dataRef,setDataRef,busy,onLinhas}:{dataRef:string;setDataRef:(d:string)=>void;busy:boolean;onLinhas:(l:LinhaBruta[],o:Origem,f:File|null)=>Promise<void>}){
  return <div className="grid gap-5">
   <Field label="Data de referência" className="max-w-[240px]"><Input type="date" value={dataRef} onChange={e=>e.target.value&&setDataRef(e.target.value)}/></Field>
-  <Tabs defaultValue={Route.useSearch().modo??"planilha"}><TabsList className="h-auto flex-wrap gap-1 bg-muted p-1 mb-5"><TabsTrigger value="planilha" className="px-3 py-2 text-[15px]"><FileSpreadsheet className="mr-1.5" size={16}/>Planilha (CSV/XLSX)</TabsTrigger><TabsTrigger value="relatorio" className="px-3 py-2 text-[15px]"><FileImage className="mr-1.5" size={16}/>PDF ou print</TabsTrigger><TabsTrigger value="manual" className="px-3 py-2 text-[15px]"><PencilLine className="mr-1.5" size={16}/>Manual</TabsTrigger></TabsList>
+  <Tabs defaultValue={modoInicial??"planilha"}><TabsList className="h-auto flex-wrap gap-1 bg-muted p-1 mb-5"><TabsTrigger value="planilha" className="px-3 py-2 text-[15px]"><FileSpreadsheet className="mr-1.5" size={16}/>Planilha (CSV/XLSX)</TabsTrigger><TabsTrigger value="relatorio" className="px-3 py-2 text-[15px]"><FileImage className="mr-1.5" size={16}/>PDF ou print</TabsTrigger><TabsTrigger value="manual" className="px-3 py-2 text-[15px]"><PencilLine className="mr-1.5" size={16}/>Manual</TabsTrigger></TabsList>
    <TabsContent value="planilha"><Planilha busy={busy} onLinhas={(l,f)=>onLinhas(l,'planilha',f)}/></TabsContent>
    <TabsContent value="relatorio"><Relatorio busy={busy} onLinhas={(l,f)=>onLinhas(l,'relatorio_ia',f)}/></TabsContent>
    <TabsContent value="manual"><Manual busy={busy} onLinhas={l=>onLinhas(l,'manual',null)}/></TabsContent>
@@ -70,6 +70,7 @@ function Planilha({busy,onLinhas}:{busy:boolean;onLinhas:(l:LinhaBruta[],f:File)
   if(m){setMapa(m.colunas as Partial<Record<CampoMapa,string>>);setSalvo(m.nome);toast.success(`Mapeamento “${m.nome}” reaplicado automaticamente.`);}else{setMapa(adivinharMapeamento(h));setSalvo(null);}
  }catch(e){toast.error(erroAmigavel(e));}finally{setLendo(false);}}
  async function continuar(){
+ const {modo:modoInicial}=Route.useSearch();
   if(!mapa.paciente){toast.error('Indique a coluna do paciente.');return;}
   const idx=(c:CampoMapa)=>mapa[c]?cab.indexOf(mapa[c]!):-1;const get=(r:unknown[],c:CampoMapa)=>{const i=idx(c);return i>=0?r[i]:undefined;};const str=(v:unknown)=>v==null||v===''?null:String(v).trim();
   const linhas:LinhaBruta[]=dados.map(r=>({data:get(r,'data'),paciente:String(get(r,'paciente')??'').trim(),cpf:str(get(r,'cpf')),procedimento:str(get(r,'procedimento')),profissional:str(get(r,'profissional')),valor:get(r,'valor'),forma_pagamento:str(get(r,'forma_pagamento')),convenio:str(get(r,'convenio'))})).filter(l=>l.paciente);
