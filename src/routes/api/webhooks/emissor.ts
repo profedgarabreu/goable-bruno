@@ -10,7 +10,7 @@ export const Route=createFileRoute('/api/webhooks/emissor')({
    if(!secret)return Response.json({erro:'Webhook não configurado.'},{status:503});
    if(!iguais(request.headers.get('x-webhook-secret')??'',secret))return Response.json({erro:'Não autorizado.'},{status:401});
    let body:Record<string,unknown>;try{body=await request.json();}catch{return Response.json({erro:'JSON inválido.'},{status:400});}
-   const ref=String(body.ref??body.referencia??'');if(!/^[0-9a-f-]{36}$/i.test(ref))return Response.json({erro:'Referência inválida.'},{status:400});
+   const ref=String(body['ref']??body['referencia']??'');if(!/^[0-9a-f-]{36}$/i.test(ref))return Response.json({erro:'Referência inválida.'},{status:400});
    const {supabaseAdmin}=await import('@/integrations/supabase/client.server');
    const {aplicarResultado,atualizarStatusLote}=await import('@/lib/notas/emissao.server');
    const {deFocus}=await import('@/lib/notas/emissor/focusMapper');
