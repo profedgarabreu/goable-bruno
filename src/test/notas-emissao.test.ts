@@ -8,7 +8,7 @@ import {podeTransicionar,validarTransicao} from '@/lib/notas/rules';
 const base:EntradaNota={
  atendimento:{data_atendimento:'2026-10-13',valor:470,quantidade:1},
  servico:{descricao_nota:'consulta médica',genero:'a'},
- paciente:{nome:'Ana Lúcia Ferreira',cpf:'104.332.181-00',cep:'30140-061',logradouro:'Rua dos Timbiras',numero:'1200',complemento:'apto 501',bairro:'Funcionários',municipio_ibge:'3106200',municipio_nome:'Belo Horizonte',uf:'MG',email:'ana@example.com',celular:'(31) 99876-5432'},
+ paciente:{nome:'Ana Lúcia Ferreira',cpf:'529.982.247-25',cep:'30140-061',logradouro:'Rua dos Timbiras',numero:'1200',complemento:'apto 501',bairro:'Funcionários',municipio_ibge:'3106200',municipio_nome:'Belo Horizonte',uf:'MG',email:'ana@example.com',celular:'(31) 99876-5432'},
  regra:null,
  emitente:{razao_social:'BNAVES CONSULTORIO DE ANGIOLOGIA LTDA',cnpj:null,inscricao_municipal:null,municipio_ibge:'3106200',regime:'simples_me_epp'},
  parametro:{c_trib_nac:'04.03.03',c_trib_mun:'04.03.03.001',nbs:'123012100',c_ind_op:'050103',municipio_incidencia_ibge:'3106200',trib_issqn:'operacao_tributavel',regime_especial:'nenhum',exigibilidade_suspensa:false,iss_retido:false,pis_cofins_cst:'00',pis_cofins_csll_retencao:'0',ibscbs_cst:'410',ibscbs_class_trib:'410999'},
@@ -18,7 +18,7 @@ const base:EntradaNota={
 describe('montarNota',()=>{
  it('consulta normal: tomador pessoa física, descrição e tributos aproximados',()=>{
   const n=montarNota(base);
-  expect(n.tomador).toMatchObject({tipo:'cpf',documento:'10433218100',nome:'Ana Lúcia Ferreira',telefone:'31998765432'});
+  expect(n.tomador).toMatchObject({tipo:'cpf',documento:'52998224725',nome:'Ana Lúcia Ferreira',telefone:'31998765432'});
   expect(n.tomador.endereco?.cep).toBe('30140061');
   expect(n.servico.descricao).toBe('01 (uma) consulta médica');
   expect(n.valores).toMatchObject({servico:470,iss_retido:false,aliquota_simples:11.8,valor_aprox_tributos:55.46,ibscbs_cst:'410'});
@@ -27,7 +27,7 @@ describe('montarNota',()=>{
  it('regra com tomador PJ: a empresa é o tomador e o paciente vai na descrição',()=>{
   const n=montarNota({...base,regra:{ativo:true,iss_retido:false,tomador_cnpj:'11.222.333/0001-81',tomador_nome:'Empresa Exemplo'}});
   expect(n.tomador).toMatchObject({tipo:'cnpj',documento:'11222333000181',nome:'Empresa Exemplo',endereco:null});
-  expect(n.servico.descricao).toBe('01 (uma) consulta médica — paciente: Ana Lúcia Ferreira, CPF 104.332.181-00');
+  expect(n.servico.descricao).toBe('01 (uma) consulta médica — paciente: Ana Lúcia Ferreira, CPF 529.982.247-25');
  });
  it('ISS retido vem da regra especial (AMAGIS) ou do parâmetro',()=>{
   expect(montarNota({...base,regra:{ativo:true,iss_retido:true,tomador_cnpj:null,tomador_nome:null}}).valores.iss_retido).toBe(true);
@@ -86,7 +86,7 @@ describe('focusMapper',()=>{
  const payload:NotaPayload={...montarNota(base),prestador:{...montarNota(base).prestador,cnpj:'11222333000181',inscricao_municipal:'123'}};
  it('mapeia campos da NFSe Nacional',()=>{
   const f=paraFocus(payload);
-  expect(f).toMatchObject({data_competencia:'2026-10-13',codigo_municipio_emissora:3106200,cnpj_prestador:'11222333000181',cpf_tomador:'10433218100',razao_social_tomador:'Ana Lúcia Ferreira',cep_tomador:'30140061',codigo_tributacao_nacional_iss:'040303',descricao_servico:'01 (uma) consulta médica',valor_servico:470,tipo_retencao_iss:1,codigo_opcao_simples_nacional:2});
+  expect(f).toMatchObject({data_competencia:'2026-10-13',codigo_municipio_emissora:3106200,cnpj_prestador:'11222333000181',cpf_tomador:'52998224725',razao_social_tomador:'Ana Lúcia Ferreira',cep_tomador:'30140061',codigo_tributacao_nacional_iss:'040303',descricao_servico:'01 (uma) consulta médica',valor_servico:470,tipo_retencao_iss:1,codigo_opcao_simples_nacional:2});
   expect(f).not.toHaveProperty('cnpj_tomador');
  });
  it('tomador PJ usa cnpj_tomador e ISS retido',()=>{
