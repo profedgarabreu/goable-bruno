@@ -236,18 +236,21 @@ export type Database = {
       }
       nf_convites_acesso: {
         Row: {
+          criado_em: string
           criado_por: string
           email: string
           expira_em: string
           papel: Database["public"]["Enums"]["nf_papel"]
         }
         Insert: {
+          criado_em?: string
           criado_por: string
           email: string
           expira_em?: string
           papel?: Database["public"]["Enums"]["nf_papel"]
         }
         Update: {
+          criado_em?: string
           criado_por?: string
           email?: string
           expira_em?: string
@@ -273,6 +276,7 @@ export type Database = {
           uf: string
           updated_at: string
           whatsapp_numero: string | null
+          whatsapp_somente_email: boolean
         }
         Insert: {
           cnpj?: string | null
@@ -291,6 +295,7 @@ export type Database = {
           uf: string
           updated_at?: string
           whatsapp_numero?: string | null
+          whatsapp_somente_email?: boolean
         }
         Update: {
           cnpj?: string | null
@@ -309,6 +314,7 @@ export type Database = {
           uf?: string
           updated_at?: string
           whatsapp_numero?: string | null
+          whatsapp_somente_email?: boolean
         }
         Relationships: []
       }

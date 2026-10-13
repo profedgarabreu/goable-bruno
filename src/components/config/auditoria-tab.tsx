@@ -1,4 +1,5 @@
 import {Fragment,useState} from 'react';
+import {TableSkeleton} from '@/components/clinic/table-skeleton';
 import {useQuery} from '@tanstack/react-query';
 import {useServerFn} from '@tanstack/react-start';
 import {toast} from 'sonner';
@@ -43,7 +44,7 @@ export function AuditoriaTab({p}:{p:Painel}){
   </div>
   {error&&<p className="text-destructive">{erroAmigavel(error)}</p>}
   <div className="table-section"><div className="table-scroll"><table className="appointments-table"><thead><tr><th aria-label="Detalhe"/><th>Quando</th><th>Operador</th><th>Usuário</th><th>Ação</th><th>Entidade</th><th>Resumo</th></tr></thead><tbody>
-   {isLoading&&<tr><td colSpan={7} className="text-center text-muted-foreground"><Loader2 className="inline animate-spin"/> Carregando…</td></tr>}
+   {isLoading&&<TableSkeleton emTabela colunas={7}/>}
    {data?.linhas.length===0&&<tr><td colSpan={7} className="py-8 text-center text-muted-foreground">Nenhum registro neste filtro.</td></tr>}
    {data?.linhas.map(l=><Fragment key={l.id}><tr className="cursor-pointer" onClick={()=>setAberto(aberto===l.id?null:l.id)}>
     <td>{aberto===l.id?<ChevronDown size={16}/>:<ChevronRight size={16}/>}</td><td className="whitespace-nowrap text-sm">{quandoBR(l.quando)}</td><td>{l.operador??'—'}</td><td className="text-sm">{l.usuario}</td><td className="text-sm">{l.acaoLabel}</td><td className="text-sm">{entidadesAuditoria[l.entidade]??l.entidade}</td><td className="max-w-[420px] whitespace-normal text-sm">{l.resumo}</td></tr>

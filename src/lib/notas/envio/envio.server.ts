@@ -19,6 +19,7 @@ const token32=()=>{const b=new Uint8Array(32);crypto.getRandomValues(b);return b
 
 /** New patient link for a note; revokes every previous link of the same note. */
 export async function novoLinkPaciente(db:Db,notaId:string,origem:string){
+ {const {garantirArquivos}=await import('../arquivos.server');await garantirArquivos(db,notaId);}
  ok(await db.from('nf_links_paciente').update({revogado:true}).eq('nota_id',notaId).eq('revogado',false));
  const token=token32();
  const l=okOne(await db.from('nf_links_paciente').insert({nota_id:notaId,token}).select('id').single());
@@ -32,6 +33,7 @@ async function textos(db:Db){const t=ok(await db.from('nf_textos_envio').select(
  * Always records an nf_envios row (including simulated content), audits, and moves the appointment to enviado/erro_envio.
  */
 export async function enviarNota(db:Db,notaId:string,auditar:Auditor,opts:{canal?:Canal;destino?:string;origem?:string}={}){
+ {const {garantirArquivos}=await import('../arquivos.server');await garantirArquivos(db,notaId);}
  const n=okOne(await db.from('nf_notas').select('id,status,numero,ambiente,pdf_path,xml_path,atendimento:nf_atendimentos(id,status,valor,data_atendimento,paciente:nf_pacientes(id,nome,email,celular))').eq('id',notaId).single());
  if(n.status!=='autorizada')throw new Error('Só notas autorizadas podem ser enviadas.');
  const a=n.atendimento!;const p=a.paciente!;

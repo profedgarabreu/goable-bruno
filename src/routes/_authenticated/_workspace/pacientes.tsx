@@ -1,4 +1,5 @@
 import {createFileRoute} from '@tanstack/react-router';
+import {TableSkeleton} from '@/components/clinic/table-skeleton';
 import {useMemo,useState} from 'react';
 import {useQuery,useQueryClient} from '@tanstack/react-query';
 import {useServerFn} from '@tanstack/react-start';
@@ -35,7 +36,7 @@ function Pacientes(){
   <div className="page-heading"><div><div className="title-eyebrow">NOTAS BNAVES</div><h1>Pacientes</h1><p>O cadastro do consultório, sempre à mão.</p></div><div className="heading-actions"><Button variant="action" size="lg" onClick={()=>setAberto('novo')}><Plus/>Novo paciente</Button></div></div>
   <div className="mb-4 flex flex-wrap items-center gap-3"><div className="search-field flex-1 min-w-[260px]"><Search size={14}/><Input aria-label="Buscar paciente" placeholder="Buscar por nome ou CPF..." value={busca} onChange={e=>setBusca(e.target.value)}/></div>
    {filtros.map(([k,l])=><Button key={k} variant={ativos.includes(k)?'default':'outline'} onClick={()=>toggle(k)} aria-pressed={ativos.includes(k)}>{l}</Button>)}</div>
-  {isLoading?<div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="animate-spin"/>Carregando…</div>:
+  {isLoading?<TableSkeleton colunas={6}/>:
   <DataTable head={['Nome','CPF','Celular','E-mail','Cadastro','Regra especial']} empty={!linhas.length}>{linhas.map(x=>{const pend=pendenciasCadastro(x);const regra=regras.find(r=>r.id===x.regra_especial_id);return <tr key={x.id} className="is-clickable" onClick={()=>setAberto(x)}>
    <td className="font-medium">{x.nome}{x.demo&&<span className="ml-2"><Pill tone="muted">demo</Pill></span>}</td><td className="tabular-nums whitespace-nowrap">{mascararCPF(x.cpf)}</td><td className="whitespace-nowrap">{x.celular?maskFone(x.celular):'—'}</td><td>{x.email||<span className="text-muted-foreground">sem e-mail</span>}</td>
    <td>{pend.length?<div><Pill tone="error">Incompleto</Pill><div className="mt-1 text-xs text-muted-foreground">{pend.join('; ')}</div></div>:<Pill tone="success">Completo</Pill>}</td><td>{regra?<Pill tone="warning">{regra.nome}</Pill>:'—'}</td></tr>;})}</DataTable>}

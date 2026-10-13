@@ -39,8 +39,8 @@ export const pacoteMes=createServerFn({method:'POST'}).middleware([requireSupaba
  const autorizadas=rows.filter(r=>r.status==='autorizada');
  const paths=okList(autorizadas.length?await db.from('nf_notas').select('id,pdf_path,xml_path').in('id',autorizadas.map(r=>r.id)):{data:[],error:null});
  const porId=new Map(paths.map(p=>[p.id,p]));
- const arquivos:{nome:string;url:string}[]=[];
- for(const r of autorizadas){const p=porId.get(r.id);for(const tipo of ['pdf','xml'] as const){const path=tipo==='pdf'?p?.pdf_path:p?.xml_path;if(!path)continue;const s=await db.storage.from('notas').createSignedUrl(path,600);if(s.error)throw new Error('Não foi possível preparar os arquivos das notas.');arquivos.push({nome:`${tipo}/${nomeArquivoNota(r.numero,r.paciente,tipo)}`,url:s.data.signedUrl});}}
+ const arquivos:{nome:string;url:string|null;nota_id:string;tipo:'pdf'|'xml'}[]=[];
+ for(const r of autorizadas){const p=porId.get(r.id);for(const tipo of ['pdf','xml'] as const){const path=tipo==='pdf'?p?.pdf_path:p?.xml_path;if(!path){arquivos.push({nome:`${tipo}/${nomeArquivoNota(r.numero,r.paciente,tipo)}`,url:null,nota_id:r.id,tipo});continue;}const s=await db.storage.from('notas').createSignedUrl(path,600);if(s.error)throw new Error('Não foi possível preparar os arquivos das notas.');arquivos.push({nome:`${tipo}/${nomeArquivoNota(r.numero,r.paciente,tipo)}`,url:s.data.signedUrl,nota_id:r.id,tipo});}}
  const planilha=nomeExportacao(data.competencia,modo,'xlsx');
  const nome=nomeExportacao(data.competencia,modo,'zip');
  await auditar(db,data.operador_id,'exportacao_mes','nf_notas',null,null,{tipo:'zip',competencia:data.competencia,arquivo:nome,notas:autorizadas.length,arquivos:arquivos.length});
@@ -101,11 +101,13 @@ export const contadoresMenu=createServerFn({method:'POST'}).middleware([requireS
 // ---- Demo cleanup preview ----
 export const contarDadosDemo=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).handler(async({context})=>{
  const db=context.supabase;await exigirPapel(db,context.userId,true);
- const ats=okList(await db.from('nf_atendimentos').select('id').eq('demo',true));
- const pac=await db.from('nf_pacientes').select('id',{count:'exact',head:true}).eq('demo',true);if(pac.error)throw new Error(pac.error.message);
- const notas=ats.length?okList(await db.from('nf_notas').select('id,pdf_path,xml_path').in('atendimento_id',ats.map(a=>a.id))):[];
- const env=notas.length?await db.from('nf_envios').select('id',{count:'exact',head:true}).in('nota_id',notas.map(n=>n.id)):{count:0,error:null};
- if(env.error)throw new Error(env.error.message);
- return {pacientes:pac.count??0,atendimentos:ats.length,notas:notas.length,envios:env.count??0,arquivos:notas.reduce((s,n)=>s+(n.pdf_path?1:0)+(n.xml_path?1:0),0)};
+ const [ats,pac,notas,env]=await Promise.all([
+  db.from('nf_atendimentos').select('id',{count:'exact',head:true}).eq('demo',true),
+  db.from('nf_pacientes').select('id',{count:'exact',head:true}).eq('demo',true),
+  db.from('nf_notas').select('pdf_path,xml_path,a:nf_atendimentos!inner(demo)').eq('a.demo',true).limit(10000),
+  db.from('nf_envios').select('id,n:nf_notas!inner(a:nf_atendimentos!inner(demo))',{count:'exact',head:true}).eq('n.a.demo',true)]);
+ for(const r of [ats,pac,notas,env])if(r.error)throw new Error(r.error.message);
+ const ns=notas.data??[];
+ return {pacientes:pac.count??0,atendimentos:ats.count??0,notas:ns.length,envios:env.count??0,arquivos:ns.reduce((s,n)=>s+(n.pdf_path?1:0)+(n.xml_path?1:0),0)};
 });
 void ok;

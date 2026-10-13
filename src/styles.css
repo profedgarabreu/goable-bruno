@@ -306,3 +306,7 @@
 .nota-baixar { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; border-radius: 10px; background: var(--action, var(--primary)); color: var(--primary-foreground); font-weight: 700; }
 .nota-ajuda, .nota-rodape { font-size: 13px; color: var(--muted-foreground); }
 .nota-icone.erro { color: var(--destructive); }
+
+/* M7 accessibility: always-visible keyboard focus */
+:where(a,button,input,select,textarea,[role="tab"],[role="checkbox"],[tabindex]):focus-visible{outline:3px solid var(--ring);outline-offset:2px;border-radius:6px}
+tr[tabindex]:focus-visible{outline:3px solid var(--ring);outline-offset:-3px}

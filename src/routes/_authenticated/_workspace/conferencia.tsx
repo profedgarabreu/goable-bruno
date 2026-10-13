@@ -1,4 +1,5 @@
 import {createFileRoute,Link,useNavigate} from '@tanstack/react-router';
+import {TableSkeleton} from '@/components/clinic/table-skeleton';
 import {Fragment,useMemo,useRef,useState} from 'react';
 import {useQuery,useQueryClient} from '@tanstack/react-query';
 import {useServerFn} from '@tanstack/react-start';
@@ -49,7 +50,7 @@ function Conferencia(){
   <section className="table-section"><div className="table-toolbar"><h2>Prontas para conferir <span className="count-pill">{linhas.length}</span></h2><div className="flex gap-3 text-sm"><span className="status-badge tone-success">{prontas.length} prontas</span><span className="status-badge tone-error">{linhas.length-prontas.length} bloqueadas</span></div></div>
    <div className="table-scroll"><table className="appointments-table conferencia-table"><thead><tr><th className="w-10"><span className="sr-only">Selecionar</span></th><th>Paciente</th><th>Serviço e descrição da nota</th><th>Valor</th><th>Pagamento</th><th>Situação</th></tr></thead>
     <tbody>
-     {isLoading&&<tr><td colSpan={6} className="text-center text-muted-foreground"><Loader2 className="inline animate-spin"/> Carregando…</td></tr>}
+     {isLoading&&<TableSkeleton emTabela colunas={6}/>}
      {!isLoading&&!linhas.length&&<tr><td colSpan={6} className="py-12 text-center text-muted-foreground">Nenhum atendimento aguardando conferência. Dê o ok de pagamento na tela <Link to="/" className="font-semibold text-primary underline">Hoje</Link>.</td></tr>}
      {grupos.map(([dia,ls])=><Fragment key={dia}>
       <tr className="conferencia-grupo"><td colSpan={6}><span className="capitalize-first">{dataLonga(dia)}</span> · {ls.length} atendimento{ls.length>1?'s':''}</td></tr>

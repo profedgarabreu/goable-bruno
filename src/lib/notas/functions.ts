@@ -76,17 +76,19 @@ export const editarParametroFiscal=createServerFn({method:'POST'}).middleware([r
 
 export const limparDadosDemo=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({confirmacao:z.literal('LIMPAR'),...op})).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId,true);
- const ids=okList(await db.from('nf_atendimentos').select('id').eq('demo',true)).map(a=>a.id);
- const notas=ids.length?okList(await db.from('nf_notas').select('id,pdf_path,xml_path').in('atendimento_id',ids)):[];
+ const ids=okList(await db.from('nf_atendimentos').select('id').eq('demo',true).limit(10000)).map(a=>a.id);
+ const lotes=<T,>(xs:T[],n=80)=>Array.from({length:Math.ceil(xs.length/n)},(_,i)=>xs.slice(i*n,i*n+n));
+ const notas:{id:string;pdf_path:string|null;xml_path:string|null}[]=[];
+ for(const l of lotes(ids))notas.push(...okList(await db.from('nf_notas').select('id,pdf_path,xml_path').in('atendimento_id',l)));
  const nids=notas.map(n=>n.id);let envios=0;
- if(nids.length){
-  envios=okList(await db.from('nf_envios').delete().in('nota_id',nids).select('id')).length;
-  ok(await db.from('nf_links_paciente').delete().in('nota_id',nids));
-  ok(await db.from('nf_notas').update({substituida_por:null}).in('substituida_por',nids));
-  ok(await db.from('nf_notas').delete().in('id',nids));
+ for(const l of lotes(nids)){
+  envios+=okList(await db.from('nf_envios').delete().in('nota_id',l).select('id')).length;
+  ok(await db.from('nf_links_paciente').delete().in('nota_id',l));
+  ok(await db.from('nf_notas').update({substituida_por:null}).in('substituida_por',l));
  }
+ for(const l of lotes(nids))ok(await db.from('nf_notas').delete().in('id',l));
  const paths=notas.flatMap(n=>[n.pdf_path,n.xml_path]).filter((p):p is string=>!!p);
- if(paths.length){const {supabaseAdmin}=await import('@/integrations/supabase/client.server');await supabaseAdmin.storage.from('notas').remove(paths);}
+ if(paths.length){const {supabaseAdmin}=await import('@/integrations/supabase/client.server');for(const l of lotes(paths,500))await supabaseAdmin.storage.from('notas').remove(l);}
  const at=okList(await db.from('nf_atendimentos').delete().eq('demo',true).select('id'));
  const pac=okList(await db.from('nf_pacientes').delete().eq('demo',true).select('id'));
  const r={pacientes:pac.length,atendimentos:at.length,notas:nids.length,envios,arquivos:paths.length};

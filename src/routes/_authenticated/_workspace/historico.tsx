@@ -1,4 +1,5 @@
 import {createFileRoute,Link} from '@tanstack/react-router';
+import {TableSkeleton} from '@/components/clinic/table-skeleton';
 import {useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {useServerFn} from '@tanstack/react-start';
@@ -15,6 +16,7 @@ import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue} from '@/compo
 import {money,pageHead} from '@/lib/clinic';
 import {useOperator} from '@/components/clinic/operator-context';
 import {erroAmigavel} from '@/components/clinic/form-kit';
+import {urlArquivoNota} from '@/lib/notas/emissao.functions';
 import {historicoMes,exportarPlanilhaMes,pacoteMes,exportarCsvMes} from '@/lib/notas/historico.functions';
 import {deslocarCompetencia,variacao,formaLabel,ehCancelada,dataBR,type Quebra} from '@/lib/notas/historico';
 import {competenciaLabel} from '@/components/config/shared';
@@ -40,6 +42,7 @@ function Historico(){
  const filtros={competencia:comp,medico_id:medico||null,servico_id:servico||null,forma:(forma||null) as 'pix'|null};
  const fn=useServerFn(historicoMes);
  const {data,isLoading,error}=useQuery({queryKey:['historico',filtros],queryFn:()=>fn({data:filtros})});
+ const urlFn=useServerFn(urlArquivoNota);
  const fx={xlsx:useServerFn(exportarPlanilhaMes),zip:useServerFn(pacoteMes),csv:useServerFn(exportarCsvMes)};
  const [exportando,setExportando]=useState<string|null>(null);const [prog,setProg]=useState<{feito:number;total:number}|null>(null);
  async function exportar(tipo:'xlsx'|'zip'|'csv'){
@@ -50,7 +53,10 @@ function Historico(){
    else{
     const r=await fx.zip({data:{...filtros,operador_id:operatorId}});const files:Record<string,Uint8Array>={[r.planilha.nome]:deB64(r.planilha.base64)};
     setProg({feito:0,total:r.arquivos.length});
-    for(const [i,a] of r.arquivos.entries()){const res=await fetch(a.url);if(!res.ok)throw new Error(`Não foi possível baixar ${a.nome}.`);files[a.nome]=new Uint8Array(await res.arrayBuffer());setProg({feito:i+1,total:r.arquivos.length});}
+    let feitos=0;const porNota=new Map<string,typeof r.arquivos>();for(const a of r.arquivos)porNota.set(a.nota_id,[...(porNota.get(a.nota_id)??[]),a]);
+    const fila=[...porNota.values()];
+    // 4 notes in parallel; within a note PDF first (it creates missing demo files), then XML.
+    await Promise.all(Array.from({length:4},async()=>{for(let grupo=fila.shift();grupo;grupo=fila.shift()){for(const a of grupo.sort((x,y)=>x.tipo.localeCompare(y.tipo))){const url=a.url??(await urlFn({data:{nota_id:a.nota_id,tipo:a.tipo}})).url;const res=await fetch(url);if(!res.ok)throw new Error(`Não foi possível baixar ${a.nome}.`);files[a.nome]=new Uint8Array(await res.arrayBuffer());feitos++;setProg({feito:feitos,total:r.arquivos.length});}}}));
     baixar(r.nome,new Blob([zipSync(files,{level:6})],{type:'application/zip'}));
    }
    toast.success('Exportação concluída.');
@@ -79,7 +85,7 @@ function Historico(){
    </div>
   </div>
 
-  {isLoading&&<div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="animate-spin"/>Carregando…</div>}
+  {isLoading&&<TableSkeleton colunas={5}/>}
   {error&&<p className="text-destructive">Não foi possível carregar o histórico.</p>}
   {data&&s&&<>
    {data.pendentes>0&&<div className="mb-5 flex items-center gap-2 rounded-lg border border-border bg-muted px-4 py-3 text-sm"><AlertTriangle size={16} className="text-action"/>Há {data.pendentes} atendimento{data.pendentes===1?'':'s'} pago{data.pendentes===1?'':'s'} sem nota neste mês. <Link to="/conferencia" className="font-semibold text-primary underline">Ir para a conferência</Link></div>}
