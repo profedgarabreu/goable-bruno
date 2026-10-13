@@ -14,6 +14,18 @@ export type Database = {
   }
   public: {
     Tables: {
+      nf_admin_bootstrap: {
+        Row: {
+          email: string
+        }
+        Insert: {
+          email: string
+        }
+        Update: {
+          email?: string
+        }
+        Relationships: []
+      }
       nf_aliquota_mes: {
         Row: {
           aliquota_simples: number
@@ -48,6 +60,7 @@ export type Database = {
         Row: {
           aprovado_em: string | null
           aprovado_por: string | null
+          autorizacao_liberada: boolean
           convenio: boolean
           created_at: string
           data_atendimento: string
@@ -58,6 +71,8 @@ export type Database = {
           hash_dedup: string
           id: string
           importacao_id: string | null
+          liberado_em: string | null
+          liberado_por: string | null
           medico_id: string | null
           observacao: string
           paciente_id: string
@@ -72,6 +87,7 @@ export type Database = {
         Insert: {
           aprovado_em?: string | null
           aprovado_por?: string | null
+          autorizacao_liberada?: boolean
           convenio?: boolean
           created_at?: string
           data_atendimento: string
@@ -82,6 +98,8 @@ export type Database = {
           hash_dedup?: string
           id?: string
           importacao_id?: string | null
+          liberado_em?: string | null
+          liberado_por?: string | null
           medico_id?: string | null
           observacao?: string
           paciente_id: string
@@ -96,6 +114,7 @@ export type Database = {
         Update: {
           aprovado_em?: string | null
           aprovado_por?: string | null
+          autorizacao_liberada?: boolean
           convenio?: boolean
           created_at?: string
           data_atendimento?: string
@@ -106,6 +125,8 @@ export type Database = {
           hash_dedup?: string
           id?: string
           importacao_id?: string | null
+          liberado_em?: string | null
+          liberado_por?: string | null
           medico_id?: string | null
           observacao?: string
           paciente_id?: string
@@ -130,6 +151,13 @@ export type Database = {
             columns: ["importacao_id"]
             isOneToOne: false
             referencedRelation: "nf_importacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nf_atendimentos_liberado_por_fkey"
+            columns: ["liberado_por"]
+            isOneToOne: false
+            referencedRelation: "nf_operadores"
             referencedColumns: ["id"]
           },
           {
@@ -211,16 +239,19 @@ export type Database = {
           criado_por: string
           email: string
           expira_em: string
+          papel: Database["public"]["Enums"]["nf_papel"]
         }
         Insert: {
           criado_por: string
           email: string
           expira_em?: string
+          papel?: Database["public"]["Enums"]["nf_papel"]
         }
         Update: {
           criado_por?: string
           email?: string
           expira_em?: string
+          papel?: Database["public"]["Enums"]["nf_papel"]
         }
         Relationships: []
       }
@@ -328,6 +359,7 @@ export type Database = {
           criado_em: string
           data_ref: string
           id: string
+          linhas_duplicadas: number
           linhas_lidas: number
           linhas_novas: number
           operador_id: string | null
@@ -339,6 +371,7 @@ export type Database = {
           criado_em?: string
           data_ref: string
           id?: string
+          linhas_duplicadas?: number
           linhas_lidas?: number
           linhas_novas?: number
           operador_id?: string | null
@@ -350,6 +383,7 @@ export type Database = {
           criado_em?: string
           data_ref?: string
           id?: string
+          linhas_duplicadas?: number
           linhas_lidas?: number
           linhas_novas?: number
           operador_id?: string | null
@@ -403,6 +437,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      nf_mapeamentos_importacao: {
+        Row: {
+          assinatura: string
+          colunas: Json
+          created_at: string
+          id: string
+          nome: string
+          ultimo_uso: string
+        }
+        Insert: {
+          assinatura: string
+          colunas: Json
+          created_at?: string
+          id?: string
+          nome: string
+          ultimo_uso?: string
+        }
+        Update: {
+          assinatura?: string
+          colunas?: Json
+          created_at?: string
+          id?: string
+          nome?: string
+          ultimo_uso?: string
+        }
+        Relationships: []
       }
       nf_medicos: {
         Row: {
