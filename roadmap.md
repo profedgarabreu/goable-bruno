@@ -42,3 +42,9 @@ Confirmation-email delivery to a real mailbox is not verified; confirmation rema
 - [x] Link seguro /nota/:token com 3 dígitos do CPF, bloqueio após 5 erros e expiração de 7 dias
 - [x] Notas: badges de envio, reenviar, ver mensagem, copiar link, filtro; lote com "Enviar pendentes"; e-mail de teste
 - [ ] Envio real — aguardando RESEND_API_KEY (com domínio verificado) e META_WA_TOKEN/META_WA_PHONE_ID/META_WA_TEMPLATE
+
+## M6 — Histórico mensal + exportações + auditoria
+- [x] /historico com competência, filtros, cartões, quebras com gráficos, evolução diária, lista paginada, canceladas separadas e comparativo
+- [x] Exportações XLSX (3 abas), ZIP (PDF/XML + planilha, montado no navegador) e CSV, todas auditadas como exportacao_mes
+- [x] Aba Auditoria (só admin) com resumos legíveis, filtros, diff e CSV
+- [x] Contadores em Conferência/Notas, atalhos ↑/↓/Espaço no Hoje, botão "Limpar dados de demonstração" com contagem prévia
