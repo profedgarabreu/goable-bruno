@@ -61,7 +61,7 @@ export const aprovarEmitir=createServerFn({method:'POST'}).middleware([requireSu
  }
  if(bloqueadas.length)throw new Error(`Há notas bloqueadas: ${bloqueadas.join(' | ')}`);
  if(!itens.length)throw new Error('Nenhuma das notas selecionadas está pronta (talvez já tenham sido emitidas). Atualize a tela.');
- const lote=ok(await db.rpc('nf_criar_lote',{_chave:data.chave,_operador:data.operador_id,_ambiente:e.emissor_modo,_itens:itens as unknown as Json}));
+ const lote=okOne(await db.rpc('nf_criar_lote',{_chave:data.chave,_operador:data.operador_id,_ambiente:e.emissor_modo,_itens:itens as unknown as Json}));
  const notas=okList(await db.from('nf_notas').select('id,atendimento_id').eq('lote_id',lote));
  await auditar(db,data.operador_id,'aprovar_lote','nf_lotes',lote,null,{notas:notas.length,ambiente:e.emissor_modo});
  for(const n of notas)await auditar(db,data.operador_id,'aprovar_emitir','nf_atendimentos',n.atendimento_id,{status:'pago_ok'},{status:'emitindo',via:'aprovado',nota_id:n.id,lote_id:lote});
@@ -88,7 +88,7 @@ export const sincronizarPendentes=createServerFn({method:'POST'}).middleware([re
  const db=context.supabase;await exigirPapel(db,context.userId);
  const ns=okList(await db.from('nf_notas').select('id,lote_id').in('status',['pendente','processando']).limit(50));
  const res:Record<string,number>={};const lotes=new Set<string>();
- for(const n of ns){try{const r=await processarNota(db,n.id,auditor(db,data.operador_id));res[r.status]=(res[r.status]??0)+1;}catch{res.falha=(res.falha??0)+1;}if(n.lote_id)lotes.add(n.lote_id);}
+ for(const n of ns){try{const r=await processarNota(db,n.id,auditor(db,data.operador_id));res[r.status]=(res[r.status]??0)+1;}catch{res['falha']=(res['falha']??0)+1;}if(n.lote_id)lotes.add(n.lote_id);}
  for(const l of lotes)await atualizarStatusLote(db,l);
  return {verificadas:ns.length,resultado:res};
 });
@@ -150,7 +150,7 @@ export const reemitirNota=createServerFn({method:'POST'}).middleware([requireSup
  const disp=disponibilidadeModos(e)[e.emissor_modo];if(!disp.ok)throw new Error(`Modo de emissão indisponível: ${disp.motivo}`);
  const ref=crypto.randomUUID();const m=await montarParaAtendimento(db,old.atendimento_id,ref,e.emissor_modo);
  if(!m.payload)throw new Error(`Corrija antes de reemitir: ${m.bloqueios.map(b=>b.mensagem).join(' ')}`);
- const lote=ok(await db.rpc('nf_criar_lote',{_chave:`reemitir:${old.id}`,_operador:data.operador_id,_ambiente:e.emissor_modo,_itens:[{atendimento_id:old.atendimento_id,ref_externa:ref,payload:m.payload,parametro_fiscal_id:m.parametro_fiscal_id,aliquota:m.aliquota,descricao:m.payload.servico.descricao,valor:m.payload.valores.servico}] as unknown as Json}));
+ const lote=okOne(await db.rpc('nf_criar_lote',{_chave:`reemitir:${old.id}`,_operador:data.operador_id,_ambiente:e.emissor_modo,_itens:[{atendimento_id:old.atendimento_id,ref_externa:ref,payload:m.payload,parametro_fiscal_id:m.parametro_fiscal_id,aliquota:m.aliquota,descricao:m.payload.servico.descricao,valor:m.payload.valores.servico}] as unknown as Json}));
  const nova=ok(await db.from('nf_notas').select('id').eq('lote_id',lote).maybeSingle());
  if(!nova)throw new Error('Não foi possível criar a nova nota. O atendimento precisa estar pronto para conferir.');
  ok(await db.from('nf_notas').update({status:'substituida',substituida_por:nova.id}).eq('id',old.id).eq('status','cancelada'));
