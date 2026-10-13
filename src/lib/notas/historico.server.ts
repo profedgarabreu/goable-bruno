@@ -2,9 +2,9 @@ import type {SupabaseClient} from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
 import type {Database} from '@/integrations/supabase/types';
 import {ok,okList} from './service.server';
-import {intervaloCompetencia,resumirHistorico,formaLabel,ehCancelada,dataBR,type LinhaHistorico} from './historico';
+import {intervaloCompetencia,resumirHistorico,formaLabel,ehCancelada,type LinhaHistorico} from './historico';
 type Db=SupabaseClient<Database>;
-export type Filtros={medico_id?:string|null;servico_id?:string|null;forma?:string|null};
+export type Filtros={medico_id?:string|null|undefined;servico_id?:string|null|undefined;forma?:string|null|undefined};
 
 function situacaoEnvio(envios:{status:string;canal:string;created_at:string}[]){const e=[...envios].sort((a,b)=>b.created_at.localeCompare(a.created_at))[0];if(!e)return 'Não enviada';if(e.status==='sem_contato')return 'Sem contato';const c=e.canal==='email'?'E-mail':'WhatsApp';return `${c} · ${e.status==='erro'?'Erro':e.status==='simulado'?'Simulado':'Enviado'}`;}
 
@@ -47,7 +47,6 @@ export function montarPlanilha(competencia:string,rows:LinhaHistorico[],emitente
  for(const i of moedaLinhas){const c=wr[XLSX.utils.encode_cell({r:i,c:1})];if(c)c.z=MOEDA;}
  formatar(wr,2,MOEDA,14);wr['!cols']=[{wch:58},{wch:22},{wch:16}];
  XLSX.utils.book_append_sheet(wb,wr,'Resumo');
- const ok=rows.filter(r=>r.status==='autorizada');
  const cabN=['Número','Chave de acesso','Data de competência','Data de emissão','Tomador','CPF','Serviço','Descrição','Médico','Forma de pagamento','Valor','Código de tributação nacional','NBS','Alíquota do Simples usada','Status','Motivo de cancelamento'];
  const wn=XLSX.utils.aoa_to_sheet([cabN,...rows.map(r=>[r.numero??'',r.chave??'',dt(r.data),dt(r.emitida_em),r.paciente,fmtCPF(r.cpf),r.servico,r.descricao??'',r.medico,formaLabel[r.forma??'']??'',r.valor,r.c_trib_nac??'',r.nbs??'',r.aliquota,statusLabel[r.status]??r.status,r.motivo??''])],{cellDates:true});
  formatar(wn,2,DATA);formatar(wn,3,DATA);formatar(wn,10,MOEDA);formatar(wn,13,PCT);
@@ -58,6 +57,5 @@ export function montarPlanilha(competencia:string,rows:LinhaHistorico[],emitente
  const wc=XLSX.utils.aoa_to_sheet([['Número','Data de competência','Tomador','CPF','Serviço','Valor','Status','Motivo','Nota substituta'],...canc.map(r=>[r.numero??'',dt(r.data),r.paciente,fmtCPF(r.cpf),r.servico,r.valor,statusLabel[r.status]??r.status,r.motivo??'',r.substituta??''])],{cellDates:true});
  formatar(wc,1,DATA);formatar(wc,5,MOEDA);wc['!cols']=[{wch:10},{wch:14},{wch:32},{wch:16},{wch:22},{wch:14},{wch:12},{wch:32},{wch:14}];
  XLSX.utils.book_append_sheet(wb,wc,'Canceladas');
- void ok;void dataBR;
  return XLSX.write(wb,{type:'array',bookType:'xlsx'}) as Uint8Array;
 }

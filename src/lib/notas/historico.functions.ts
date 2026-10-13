@@ -72,7 +72,7 @@ export const listarAuditoria=createServerFn({method:'POST'}).middleware([require
   ids('nf_notas').length?db.from('nf_notas').select('id,numero,atendimento:nf_atendimentos(valor,forma_pagamento,paciente:nf_pacientes(nome))').in('id',ids('nf_notas')):Promise.resolve({data:[],error:null}),
   ids('nf_pacientes').length?db.from('nf_pacientes').select('id,nome').in('id',ids('nf_pacientes')):Promise.resolve({data:[],error:null}),
   db.from('nf_perfis').select('user_id,nome')]);
- type Ctx={paciente?:string|null;valor?:number|null;forma?:string|null;numero?:string|null};
+ type Ctx={paciente?:string|null|undefined;valor?:number|null|undefined;forma?:string|null|undefined;numero?:string|null|undefined};
  const ctx=new Map<string,Ctx>();
  for(const a of okList(ats as never) as {id:string;valor:number;forma_pagamento:string|null;paciente:{nome:string}|null}[])ctx.set(a.id,{paciente:a.paciente?.nome,valor:Number(a.valor),forma:a.forma_pagamento});
  for(const n of okList(nts as never) as {id:string;numero:string|null;atendimento:{valor:number;forma_pagamento:string|null;paciente:{nome:string}|null}|null}[])ctx.set(n.id,{paciente:n.atendimento?.paciente?.nome,valor:n.atendimento?Number(n.atendimento.valor):null,forma:n.atendimento?.forma_pagamento,numero:n.numero});

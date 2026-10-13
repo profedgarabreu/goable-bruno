@@ -55,7 +55,7 @@ export const abreviarNome=(n:string|null|undefined)=>{const p=(n??'').trim().spl
 const moeda=(n:number)=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 type Obj=Record<string,unknown>;
 /** "Marli marcou como pago o atendimento de Maria S. — Pix — R$ 630,00" */
-export function resumoAuditoria(e:{operador:string|null;acao:string;entidade:string;antes:unknown;depois:unknown;contexto?:{paciente?:string|null;valor?:number|null;forma?:string|null;numero?:string|null}|null}){
+export function resumoAuditoria(e:{operador:string|null;acao:string;entidade:string;antes:unknown;depois:unknown;contexto?:{paciente?:string|null|undefined;valor?:number|null|undefined;forma?:string|null|undefined;numero?:string|null|undefined}|null|undefined}){
  const quem=e.operador??'Alguém';const ent=entidadesAuditoria[e.entidade]??e.entidade;const c=e.contexto??{};const d=(e.depois&&typeof e.depois==='object'?e.depois:{}) as Obj;
  const alvo=c.paciente?`${e.entidade==='nf_notas'?(c.numero?`nº ${c.numero} `:''):''}de ${abreviarNome(c.paciente)}`:'';
  if(e.acao==='exportacao_mes')return `${quem} exportou ${String(d['tipo']??'arquivo').toUpperCase()} da competência ${String(d['competencia']??'')}`;
