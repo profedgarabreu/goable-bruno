@@ -26,3 +26,7 @@
 - Gate admin-created accounts with a short-lived `nf_convites_acesso` row checked by `nf_guard_signup`, because the auth service inserts users before custom app metadata is available to the trigger.
 - Keep the clinic-login write matrix (which tables/columns `consultorio` may change) in `salvarCadastro` and mirror it only cosmetically in the UI, so permissions stay server-authoritative.
 - Process pasted ProntMed records only in memory (`extrairFicha`), drop values not literally present in the text, and audit only changed patient fields, so health record text is never persisted.
+- Talk to fiscal issuers only through the `EmissorNFSe` adapters in `src/lib/notas/emissor/` (Focus field mapping isolated in `focusMapper.ts`), so swapping provider or mode never touches screens.
+- Create batches and notes only via the `nf_criar_lote` database function (advisory lock + batch key + one-active-note-per-appointment unique index); retries reuse `ref_externa`, corrected re-issues get a new one and mark the old note `substituida`, to keep emission idempotent.
+- Each note is processed by an atomic claim (`pendente`→`processando`) before contacting the issuer, and its `ambiente` is fixed at creation, so double clicks, refreshes and webhooks never send twice or switch environment.
+- Keep mock-issuer state in `nf_notas` (sent time, number, key), because server workers are stateless.
