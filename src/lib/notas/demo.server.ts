@@ -67,8 +67,8 @@ export async function prepararDemo(db:Db){
  const dias=diasUteis(hoje);
  const existentes=new Set(okList(await db.from('nf_atendimentos').select('data_atendimento').eq('demo',true).eq('observacao',HIST_TAG).gte('data_atendimento',dias[0]??hoje)).map(r=>r.data_atendimento));
  const elegiveis=pacientes.filter(p=>p.cpf&&!p.cpf.endsWith('00')&&p.cep&&p.logradouro&&p.numero);
- let atendimentos=0,notas=0,envios=0;
- for(const dia of dias.filter(x=>!existentes.has(x))){
+ let atendimentos=0,notas=0,envios=0;const novos=dias.filter(x=>!existentes.has(x));
+ for(const dia of novos){
   const plano=planoDia(dia,elegiveis.map(p=>p.id));
   const linhas=plano.map(l=>{const s=porNome(l.servico)!;return {l,s,p:pmap.get(l.paciente)!};}).filter(x=>x.s);
   const ats=okList(await db.from('nf_atendimentos').insert(linhas.map(({l,s})=>({data_atendimento:dia,paciente_id:l.paciente,medico_id:medico?.id??null,servico_id:s.id,quantidade:1,valor:l.valor,forma_pagamento:l.forma,convenio:false,status:'enviado' as const,observacao:HIST_TAG,demo:true,pago_ok_por:operador,pago_ok_em:`${dia}T15:00:00-03:00`,aprovado_por:operador,aprovado_em:`${dia}T18:00:00-03:00`}))).select('id'));
@@ -98,5 +98,5 @@ export async function prepararDemo(db:Db){
   const nova=ok(await db.from('nf_notas').insert({atendimento_id:n.atendimento_id,ambiente:'mock',ref_externa:ref,status:'autorizada',numero:String(num),chave_acesso:chaveFicticia(ref),emitida_em:`${n.atendimento.data_atendimento}T19:30:00-03:00`,payload_enviado:payload,parametro_fiscal_id:n.parametro_fiscal_id,aliquota_simples_usada:n.aliquota_simples_usada,descricao_usada:n.descricao_usada}).select('id').single());
   ok(await db.from('nf_notas').update({substituida_por:nova.id}).eq('id',n.id));notas++;}
 
- return {pacientes_criados:pac.length-antes,atendimentos_hoje_criados:hojeCriados,atendimentos_hoje_movidos:mover.length,dias_gerados:dias.length-existentes.size,dias_ja_existentes:existentes.size,atendimentos,notas,envios};
+ return {pacientes_criados:pac.length-antes,atendimentos_hoje_criados:hojeCriados,atendimentos_hoje_movidos:mover.length,dias_gerados:novos.length,dias_ja_existentes:dias.length-novos.length,atendimentos,notas,envios};
 }
