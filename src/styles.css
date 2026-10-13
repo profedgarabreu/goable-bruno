@@ -289,3 +289,20 @@
 .notas-filtros .search-field { width:100%; }
 @media(max-width:1200px){ .notas-filtros { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 @media(max-width:700px){ .modo-grid, .notas-filtros { grid-template-columns:1fr; } .previa-nota dl { grid-template-columns:1fr; } }
+
+/* M5 — patient link page and WhatsApp preview */
+.wa-chat { background: var(--muted); border-radius: 12px; padding: 14px; }
+.wa-bubble { position: relative; max-width: 92%; background: var(--success-soft); color: var(--foreground); border-radius: 10px 10px 10px 2px; padding: 10px 12px 18px; white-space: pre-wrap; font-size: 15px; line-height: 1.45; box-shadow: 0 1px 1px color-mix(in oklab, var(--foreground) 12%, transparent); word-break: break-word; }
+.wa-time { position: absolute; right: 8px; bottom: 3px; font-size: 11px; color: var(--muted-foreground); }
+.nota-publica { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 24px 16px; background: var(--background); }
+.nota-card { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 22px; display: grid; gap: 14px; font-size: 17px; }
+.nota-card h1 { font-size: 24px; font-weight: 700; }
+.nota-marca { font-size: 22px; font-weight: 800; color: var(--primary); display: grid; }
+.nota-marca span { font-size: 13px; font-weight: 500; color: var(--muted-foreground); }
+.nota-form { display: grid; gap: 12px; }
+.nota-form label { display: flex; gap: 8px; align-items: flex-start; }
+.nota-digitos { height: 56px; font-size: 28px; letter-spacing: .4em; text-align: center; }
+.nota-msg { color: var(--destructive); font-size: 15px; }
+.nota-baixar { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; border-radius: 10px; background: var(--action, var(--primary)); color: var(--primary-foreground); font-weight: 700; }
+.nota-ajuda, .nota-rodape { font-size: 13px; color: var(--muted-foreground); }
+.nota-icone.erro { color: var(--destructive); }
