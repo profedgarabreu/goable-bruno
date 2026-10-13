@@ -3,7 +3,7 @@ import {z} from 'zod';
 import {requireSupabaseAuth} from '@/integrations/supabase/auth-middleware';
 import {exigirPapel,ok,okList,auditar,configFiscal,bloqueiosDe} from './service.server';
 import type {Json} from '@/integrations/supabase/types';
-import {statusAtendimento,validarTransicao,validarCPF,somenteDigitos,type StatusAtendimento} from './rules';
+import {statusAtendimento,validarTransicao,validarCPF,validarCNPJ,somenteDigitos,diffCampos,type StatusAtendimento} from './rules';
 
 const op={operador_id:z.string().uuid().nullish()};
 const id=z.string().uuid();
@@ -37,28 +37,37 @@ const schemas={
  nf_medicos:z.object({nome:z.string().trim().min(2),crm:z.string().nullish(),nome_no_prontmed:z.string().nullish(),ativo:z.boolean().optional()}),
  nf_servicos:z.object({nome:z.string().trim().min(2),gera_nota:z.boolean().optional(),valor_padrao:z.number().nonnegative().nullish(),descricao_nota:z.string().trim().min(2),genero:z.enum(['a','o']),parametro_fiscal_id:id.nullish(),aliases_prontmed:z.array(z.string()).optional(),observacao:z.string().optional(),ativo:z.boolean().optional(),ordem:z.number().int().optional()}),
  nf_pacientes:z.object({nome:z.string().trim().min(2),cpf:cpfOpt,cep:z.string().nullish().transform(v=>somenteDigitos(v)||null),logradouro:z.string().nullish(),numero:z.string().nullish(),complemento:z.string().nullish(),bairro:z.string().nullish(),municipio_ibge:z.string().nullish(),municipio_nome:z.string().nullish(),uf:z.string().length(2).nullish(),email:z.string().email().nullish(),celular:z.string().nullish(),regra_especial_id:id.nullish(),prontuario_prontmed:z.string().nullish(),origem:z.enum(['importacao','ficha_ia','manual']).optional()}),
- nf_aliquota_mes:z.object({competencia:z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),aliquota_simples:z.number().min(0).max(100),informado_por:z.string().trim().min(2)}),
+ nf_regras_especiais:z.object({nome:z.string().trim().min(2),aguarda_autorizacao:z.boolean().optional(),iss_retido:z.boolean().optional(),exige_declaracao:z.boolean().optional(),tomador_cnpj:z.string().nullish().transform(v=>somenteDigitos(v)||null).refine(v=>v===null||validarCNPJ(v),'CNPJ do tomador inválido'),tomador_nome:z.string().trim().nullish().transform(v=>v||null),observacao:z.string().optional(),ativo:z.boolean().optional()}),
+ nf_aliquota_mes:z.object({competencia:z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),aliquota_simples:z.number().min(0,'A alíquota vai de 0 a 33%.').max(33,'A alíquota vai de 0 a 33%.'),informado_por:z.string().trim().min(2)}),
 } as const;
 type Tabela=keyof typeof schemas;
+// Which tables the clinic login may write; null = every column, array = only these columns on edit.
+const permissaoConsultorio:Record<Tabela,{criar:boolean;campos:string[]|null}|false>={nf_operadores:{criar:true,campos:null},nf_pacientes:{criar:true,campos:null},nf_aliquota_mes:{criar:true,campos:null},nf_servicos:{criar:false,campos:['valor_padrao','descricao_nota']},nf_medicos:false,nf_regras_especiais:false};
 const tabela=z.enum(Object.keys(schemas) as [Tabela,...Tabela[]]);
 
 export const listarCadastro=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({tabela})).handler(async({context,data})=>{await exigirPapel(context.supabase,context.userId);return okList(await context.supabase.from(data.tabela).select('*').order('created_at')) as unknown as {[k:string]:Json}[];});
 
 export const salvarCadastro=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({tabela,id:id.optional(),dados:z.record(z.string(),z.unknown()),...op})).handler(async({context,data})=>{
- const db=context.supabase;await exigirPapel(db,context.userId);
+ const db=context.supabase;const papel=await exigirPapel(db,context.userId);
  const schema=schemas[data.tabela];
  const dados=(data.id?schema.partial():schema).parse(data.dados) as Record<string,unknown>;
+ if(papel==='consultorio'){const regra=permissaoConsultorio[data.tabela];
+  if(!regra||(!data.id&&!regra.criar))throw new Error('Somente a administração Goable pode alterar este cadastro.');
+  if(data.id&&regra.campos){const proibidos=Object.keys(dados).filter(k=>!regra.campos!.includes(k));if(proibidos.length)throw new Error('O consultório só pode alterar valor e texto da nota dos serviços.');}}
  if(data.tabela==='nf_aliquota_mes')dados['informado_em']=new Date().toISOString();
  // eslint-disable-next-line @typescript-eslint/no-explicit-any
  const t=db.from(data.tabela) as any;
  let antes=null,depois;
  if(data.id){antes=ok(await t.select('*').eq('id',data.id).maybeSingle());if(!antes)throw new Error('Registro não encontrado.');depois=ok(await t.update(dados).eq('id',data.id).select('*').single());}
  else depois=ok(await t.insert(dados).select('*').single());
- await auditar(db,data.operador_id,data.id?'editar':'criar',data.tabela,(depois as {id:string}).id,antes,depois);
+ const d=diffCampos(antes,depois as Record<string,unknown>);
+ await auditar(db,data.operador_id,data.id?'editar':'criar',data.tabela,(depois as {id:string}).id,d.antes,d.depois);
  return depois as {[k:string]:Json};
 });
 
-export const editarParametroFiscal=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({id,dados:z.record(z.string(),z.unknown()),...op})).handler(async({context,data})=>{
+const s50=z.string().trim().max(200);
+const parametroSchema=z.object({nome:s50.min(3),c_trib_nac:s50.min(1),c_trib_mun:s50.nullable(),nbs:s50.nullable(),nbs_descricao:s50.nullable(),c_ind_op:s50.nullable(),municipio_incidencia_ibge:z.string().regex(/^\d{7}$/),trib_issqn:s50.min(1),regime_especial:s50.min(1),exigibilidade_suspensa:z.boolean(),iss_retido:z.boolean(),beneficio_municipal:z.boolean(),pis_cofins_cst:s50.nullable(),pis_cofins_csll_retencao:s50.nullable(),ibscbs_cst:s50.nullable(),ibscbs_class_trib:s50.nullable(),valor_aprox_tributos_modo:s50.min(1),vigente_desde:z.string().regex(/^\d{4}-\d{2}-\d{2}$/)}).partial();
+export const editarParametroFiscal=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({id,dados:parametroSchema,...op})).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId,true);
  const novo=ok(await db.rpc('nf_parametro_nova_versao',{_id:data.id,_dados:data.dados as never}));
  await auditar(db,data.operador_id,'nova_versao','nf_parametros_fiscais',novo,{id:data.id},data.dados);
