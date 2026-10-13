@@ -35,7 +35,7 @@ export const enviarNotaFn=createServerFn({method:'POST'}).middleware([requireSup
   if(data.canal==='whatsapp'&&!celularValido(d))throw new Error('Informe um celular válido com DDD.');
   const n=okOne(await db.from('nf_notas').select('atendimento:nf_atendimentos(paciente:nf_pacientes(id,email,celular))').eq('id',data.nota_id).single());
   const p=n.atendimento!.paciente!;const campo=data.canal==='email'?'email':'celular';const novo=data.canal==='email'?d.toLowerCase():somenteDigitos(d);
-  if(p[campo]!==novo){ok(await db.from('nf_pacientes').update({[campo]:novo}).eq('id',p.id));await auditar(db,data.operador_id,'atualizar_contato','nf_pacientes',p.id,{[campo]:p[campo]},{[campo]:novo});}
+  if(p[campo]!==novo){ok(await db.from('nf_pacientes').update(campo==='email'?{email:novo}:{celular:novo}).eq('id',p.id));await auditar(db,data.operador_id,'atualizar_contato','nf_pacientes',p.id,{[campo]:p[campo]},{[campo]:novo});}
  }
  return enviarNota(db,data.nota_id,auditor(db,data.operador_id),data.canal?{canal:data.canal,destino:data.destino??''}:{});
 });

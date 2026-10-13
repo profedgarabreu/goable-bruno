@@ -1,7 +1,7 @@
 // Channel adapters. Real senders are chosen only when their secrets exist; otherwise simulated (records only).
 import {traduzirErroEnvio} from './regras';
 
-export type ResultadoEnvio={status:'enviado'|'simulado'|'erro';providerId?:string;erro?:string;bruto?:unknown};
+export type ResultadoEnvio={status:'enviado'|'simulado'|'erro';providerId?:string|undefined;erro?:string|undefined;bruto?:unknown};
 export type Anexo={nome:string;path:string;conteudo?:()=>Promise<Uint8Array>};
 export interface EmailSender{readonly modo:'real'|'simulado';enviar(m:{de:string|null;nomeDe:string;para:string;assunto:string;html:string;anexos:Anexo[]}):Promise<ResultadoEnvio>}
 export interface WhatsAppSender{readonly modo:'real'|'simulado';enviar(m:{para:string;texto:string;params:{nome:string;data:string;link:string}}):Promise<ResultadoEnvio>}
