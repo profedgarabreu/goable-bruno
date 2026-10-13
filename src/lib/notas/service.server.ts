@@ -8,7 +8,7 @@ export async function exigirPapel(db:Db,userId:string,somenteAdmin=false){
  if(!somenteAdmin&&cons===true)return 'consultorio' as const;
  throw new Error(somenteAdmin?'Somente a administração Goable pode fazer isso.':'Acesso não autorizado.');
 }
-export function ok<T>(r:{data:T;error:{message:string}|null}):T{if(r.error)throw new Error(r.error.message);return r.data;}
+export function ok<T>(r:{data:T;error:{message:string}|null}):T{if(r.error)throw new Error(r.error.message);return r.data as NonNullable<T>;}
 export function okList<T>(r:{data:T[]|null;error:{message:string}|null}):T[]{if(r.error)throw new Error(r.error.message);return r.data??[];}
 export async function auditar(db:Db,operadorId:string|null|undefined,acao:string,entidade:string,id:string|null,antes:unknown,depois:unknown){
  ok(await db.from('nf_auditoria').insert({operador_id:operadorId??null,acao,entidade,entidade_id:id,antes:(antes??null) as Json,depois:(depois??null) as Json}));
@@ -28,4 +28,4 @@ export async function bloqueiosDe(db:Db,atendimentoId:string){
  const bloqueios=calcularBloqueios({atendimento:{data_atendimento:a.data_atendimento,valor:Number(a.valor),convenio:a.convenio,aprovado_em:a.aprovado_em,autorizacao_liberada:a.autorizacao_liberada},paciente:{cpf:p?.cpf??null,cep:p?.cep??null,logradouro:p?.logradouro??null,numero:p?.numero??null,municipio_ibge:p?.municipio_ibge??null},servico:a.servico,aliquotaDoMes:aliq?Number(aliq.aliquota_simples):null,regra:p?.regra??null});
  return {atendimento:a as typeof a & {status:StatusAtendimento},bloqueios};
 }
-export function okOne<T>(r:{data:T|null;error:{message:string}|null}):T{if(r.error)throw new Error(r.error.message);if(r.data==null)throw new Error('Registro não encontrado.');return r.data;}
+export function okOne<T>(r:{data:T;error:{message:string}|null}):NonNullable<T>{if(r.error)throw new Error(r.error.message);if(r.data==null)throw new Error('Registro não encontrado.');return r.data as NonNullable<T>;}
