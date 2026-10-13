@@ -15,6 +15,34 @@
       "when": 1791852357621,
       "tag": "0001_tighten_nf_function_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791852721742,
+      "tag": "0002_pendencias_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791853077773,
+      "tag": "0003_pendencias_atomic_file_removal",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791853508592,
+      "tag": "0004_pendencias_revoke_anonymous_grants",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791853707141,
+      "tag": "0005_pendencias_config_locked_validation",
+      "breakpoints": true
     }
   ]
 }

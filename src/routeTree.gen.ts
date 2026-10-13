@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as SenhaRouteImport } from './routes/senha'
 import { Route as AuthenticatedWorkspaceRouteRouteImport } from './routes/_authenticated/_workspace/route'
 import { Route as AuthenticatedOperadorRouteImport } from './routes/_authenticated/operador'
+import { Route as ResponderTokenRouteImport } from './routes/responder/$token'
 import { Route as AuthenticatedWorkspaceIndexRouteImport } from './routes/_authenticated/_workspace/index'
 import { Route as AuthenticatedWorkspaceConferenciaRouteImport } from './routes/_authenticated/_workspace/conferencia'
 import { Route as AuthenticatedWorkspaceConfiguracoesRouteImport } from './routes/_authenticated/_workspace/configuracoes'
@@ -22,6 +23,7 @@ import { Route as AuthenticatedWorkspaceHistoricoRouteImport } from './routes/_a
 import { Route as AuthenticatedWorkspaceImportarRouteImport } from './routes/_authenticated/_workspace/importar'
 import { Route as AuthenticatedWorkspaceNotasRouteImport } from './routes/_authenticated/_workspace/notas'
 import { Route as AuthenticatedWorkspacePacientesRouteImport } from './routes/_authenticated/_workspace/pacientes'
+import { Route as AuthenticatedWorkspacePendenciasRouteImport } from './routes/_authenticated/_workspace/pendencias'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -51,6 +53,11 @@ const AuthenticatedOperadorRoute = AuthenticatedOperadorRouteImport.update({
   id: '/operador',
   path: '/operador',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ResponderTokenRoute = ResponderTokenRouteImport.update({
+  id: '/responder/$token',
+  path: '/responder/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedWorkspaceIndexRoute =
   AuthenticatedWorkspaceIndexRouteImport.update({
@@ -94,6 +101,12 @@ const AuthenticatedWorkspacePacientesRoute =
     path: '/pacientes',
     getParentRoute: () => AuthenticatedWorkspaceRouteRoute,
   } as any)
+const AuthenticatedWorkspacePendenciasRoute =
+  AuthenticatedWorkspacePendenciasRouteImport.update({
+    id: '/pendencias',
+    path: '/pendencias',
+    getParentRoute: () => AuthenticatedWorkspaceRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedWorkspaceIndexRoute
@@ -101,12 +114,14 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/senha': typeof SenhaRoute
   '/operador': typeof AuthenticatedOperadorRoute
+  '/responder/$token': typeof ResponderTokenRoute
   '/conferencia': typeof AuthenticatedWorkspaceConferenciaRoute
   '/configuracoes': typeof AuthenticatedWorkspaceConfiguracoesRoute
   '/historico': typeof AuthenticatedWorkspaceHistoricoRoute
   '/importar': typeof AuthenticatedWorkspaceImportarRoute
   '/notas': typeof AuthenticatedWorkspaceNotasRoute
   '/pacientes': typeof AuthenticatedWorkspacePacientesRoute
+  '/pendencias': typeof AuthenticatedWorkspacePendenciasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedWorkspaceIndexRoute
@@ -114,12 +129,14 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/senha': typeof SenhaRoute
   '/operador': typeof AuthenticatedOperadorRoute
+  '/responder/$token': typeof ResponderTokenRoute
   '/conferencia': typeof AuthenticatedWorkspaceConferenciaRoute
   '/configuracoes': typeof AuthenticatedWorkspaceConfiguracoesRoute
   '/historico': typeof AuthenticatedWorkspaceHistoricoRoute
   '/importar': typeof AuthenticatedWorkspaceImportarRoute
   '/notas': typeof AuthenticatedWorkspaceNotasRoute
   '/pacientes': typeof AuthenticatedWorkspacePacientesRoute
+  '/pendencias': typeof AuthenticatedWorkspacePendenciasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -129,12 +146,14 @@ export interface FileRoutesById {
   '/senha': typeof SenhaRoute
   '/_authenticated/_workspace': typeof AuthenticatedWorkspaceRouteRouteWithChildren
   '/_authenticated/operador': typeof AuthenticatedOperadorRoute
+  '/responder/$token': typeof ResponderTokenRoute
   '/_authenticated/_workspace/conferencia': typeof AuthenticatedWorkspaceConferenciaRoute
   '/_authenticated/_workspace/configuracoes': typeof AuthenticatedWorkspaceConfiguracoesRoute
   '/_authenticated/_workspace/historico': typeof AuthenticatedWorkspaceHistoricoRoute
   '/_authenticated/_workspace/importar': typeof AuthenticatedWorkspaceImportarRoute
   '/_authenticated/_workspace/notas': typeof AuthenticatedWorkspaceNotasRoute
   '/_authenticated/_workspace/pacientes': typeof AuthenticatedWorkspacePacientesRoute
+  '/_authenticated/_workspace/pendencias': typeof AuthenticatedWorkspacePendenciasRoute
   '/_authenticated/_workspace/': typeof AuthenticatedWorkspaceIndexRoute
 }
 export interface FileRouteTypes {
@@ -145,12 +164,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/senha'
     | '/operador'
+    | '/responder/$token'
     | '/conferencia'
     | '/configuracoes'
     | '/historico'
     | '/importar'
     | '/notas'
     | '/pacientes'
+    | '/pendencias'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -158,12 +179,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/senha'
     | '/operador'
+    | '/responder/$token'
     | '/conferencia'
     | '/configuracoes'
     | '/historico'
     | '/importar'
     | '/notas'
     | '/pacientes'
+    | '/pendencias'
   id:
     | '__root__'
     | '/_authenticated'
@@ -172,12 +195,14 @@ export interface FileRouteTypes {
     | '/senha'
     | '/_authenticated/_workspace'
     | '/_authenticated/operador'
+    | '/responder/$token'
     | '/_authenticated/_workspace/conferencia'
     | '/_authenticated/_workspace/configuracoes'
     | '/_authenticated/_workspace/historico'
     | '/_authenticated/_workspace/importar'
     | '/_authenticated/_workspace/notas'
     | '/_authenticated/_workspace/pacientes'
+    | '/_authenticated/_workspace/pendencias'
     | '/_authenticated/_workspace/'
   fileRoutesById: FileRoutesById
 }
@@ -186,6 +211,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   LoginRoute: typeof LoginRoute
   SenhaRoute: typeof SenhaRoute
+  ResponderTokenRoute: typeof ResponderTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -231,6 +257,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/operador'
       preLoaderRoute: typeof AuthenticatedOperadorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/responder/$token': {
+      id: '/responder/$token'
+      path: '/responder/$token'
+      fullPath: '/responder/$token'
+      preLoaderRoute: typeof ResponderTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/_workspace/': {
       id: '/_authenticated/_workspace/'
@@ -281,6 +314,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWorkspacePacientesRouteImport
       parentRoute: typeof AuthenticatedWorkspaceRouteRoute
     }
+    '/_authenticated/_workspace/pendencias': {
+      id: '/_authenticated/_workspace/pendencias'
+      path: '/pendencias'
+      fullPath: '/pendencias'
+      preLoaderRoute: typeof AuthenticatedWorkspacePendenciasRouteImport
+      parentRoute: typeof AuthenticatedWorkspaceRouteRoute
+    }
   }
 }
 
@@ -291,6 +331,7 @@ interface AuthenticatedWorkspaceRouteRouteChildren {
   AuthenticatedWorkspaceImportarRoute: typeof AuthenticatedWorkspaceImportarRoute
   AuthenticatedWorkspaceNotasRoute: typeof AuthenticatedWorkspaceNotasRoute
   AuthenticatedWorkspacePacientesRoute: typeof AuthenticatedWorkspacePacientesRoute
+  AuthenticatedWorkspacePendenciasRoute: typeof AuthenticatedWorkspacePendenciasRoute
   AuthenticatedWorkspaceIndexRoute: typeof AuthenticatedWorkspaceIndexRoute
 }
 
@@ -304,6 +345,8 @@ const AuthenticatedWorkspaceRouteRouteChildren: AuthenticatedWorkspaceRouteRoute
     AuthenticatedWorkspaceImportarRoute: AuthenticatedWorkspaceImportarRoute,
     AuthenticatedWorkspaceNotasRoute: AuthenticatedWorkspaceNotasRoute,
     AuthenticatedWorkspacePacientesRoute: AuthenticatedWorkspacePacientesRoute,
+    AuthenticatedWorkspacePendenciasRoute:
+      AuthenticatedWorkspacePendenciasRoute,
     AuthenticatedWorkspaceIndexRoute: AuthenticatedWorkspaceIndexRoute,
   }
 
@@ -331,6 +374,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   LoginRoute: LoginRoute,
   SenhaRoute: SenhaRoute,
+  ResponderTokenRoute: ResponderTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
