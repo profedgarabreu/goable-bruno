@@ -79,7 +79,7 @@ function Today(){
         <DropdownMenuItem className="text-destructive" onSelect={()=>setExcluir(l)}><Trash2/>Excluir</DropdownMenuItem>
        </DropdownMenuContent></DropdownMenu>}
       </div></td></tr>;})}
-    {!isLoading&&visiveis.length===0&&<tr><td colSpan={8} className="py-10 text-center text-muted-foreground">{(linhas?.length??0)===0?<>Nenhum atendimento nesta data. <Link to="/importar" className="font-semibold text-primary underline">Importar atendimentos</Link></>:'Nenhum atendimento neste filtro.'}</td></tr>}
+    {!isLoading&&visiveis.length===0&&<tr><td colSpan={8} className="py-10 text-center text-muted-foreground">{(linhas?.length??0)===0?<div className="grid justify-items-center gap-3"><span className="text-[15px]">{dataSel===saoPauloDate()?'Nenhum atendimento hoje.':'Nenhum atendimento nesta data.'} Importe o relatório do ProntMed para começar.</span><Button asChild variant="action"><Link to="/importar"><Upload/>Importar relatório</Link></Button></div>:'Nenhum atendimento neste filtro.'}</td></tr>}
    </tbody></table></div>
    <div className="table-footer"><span>{visiveis.length} de {linhas?.length??0} atendimentos{(linhas??[]).some(l=>l.demo)&&<> <span className="mx-2">·</span> inclui dados fictícios de demonstração</>}</span><span>Total particular <strong className="total-value">{money((linhas??[]).filter(l=>l.status!=='nao_gera_nota'&&l.status!=='cancelado').reduce((s,l)=>s+l.valor,0))}</strong></span></div>
   </section>
