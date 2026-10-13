@@ -13,6 +13,7 @@ import {EditDrawer,Field,maskCNPJ,maskFone,d} from '@/components/clinic/form-kit
 import {useSalvar,dataBR,type Painel} from './shared';
 import {saoPauloDate} from '@/lib/clinic';
 import {ModoEmissor} from './modo-emissor';
+import {EnvioCanais} from './envio-canais';
 
 type EF={razao_social:string;cnpj:string;inscricao_municipal:string;municipio_nome:string;municipio_ibge:string;uf:string;regime:string;email_remetente:string;whatsapp_numero:string};
 const vazioEF:EF={razao_social:'',cnpj:'',inscricao_municipal:'',municipio_nome:'',municipio_ibge:'',uf:'',regime:'',email_remetente:'',whatsapp_numero:''};
@@ -39,6 +40,7 @@ export function EmitenteTab({p}:{p:Painel}){
    </div>
   </div>
   <ModoEmissor/>
+  <EnvioCanais/>
   <div className="flex items-center justify-between"><h2 className="text-lg font-semibold">Dados de quem emite a nota</h2>{admin&&<Button variant="action" onClick={abrir}><Pencil/>Editar emitente</Button>}</div>
   <div className="ficha">{linhas.map(([l,x])=><Fragment key={l}><div className="ficha-label">{l}</div><div>{x}</div></Fragment>)}</div>
   {!admin&&<p className="text-sm text-muted-foreground">Somente a administração Goable altera os dados do emitente.</p>}
