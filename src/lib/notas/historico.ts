@@ -42,7 +42,7 @@ export const valorCSV=(n:number)=>n.toFixed(2).replace('.',',');
 export const acoesAuditoria:Record<string,string>={
  ok_pagamento:'marcou como pago',desfazer_ok_pagamento:'desfez o ok de pagamento',forma_pagamento:'alterou a forma de pagamento',liberar_autorizacao:'liberou a autorização',
  marcar_sem_nota:'marcou como convênio / sem nota',editar:'editou',criar:'criou',excluir:'excluiu',transicionar_status:'mudou o status',importar:'importou atendimentos',
- adicionar_alias:'adicionou apelido do ProntMed',aprovar_lote:'aprovou o lote',aprovar_emitir:'aprovou para emissão',nota_autorizada:'teve a nota autorizada',
+ adicionar_alias:'adicionou apelido do ProntMed',aprovar_lote:'aprovou o lote',aprovar_emitir:'aprovou para emissão',nota_autorizada:'registrou a autorização da nota',
  cancelar_nota:'cancelou a nota',reemitir_nota:'reemitiu a nota corrigida',tentar_de_novo:'tentou emitir de novo',falha:'registrou falha na emissão',
  enviar_nota:'enviou a nota',envio_sem_contato:'tentou enviar (sem contato)',gerar_link_paciente:'gerou link seguro',atualizar_contato:'atualizou o contato',
  alterar_envio_automatico:'alterou o envio automático',alterar_modo_emissor:'alterou o modo do emissor',registrar_validacao_contador:'registrou a validação do contador',
@@ -59,7 +59,9 @@ export function resumoAuditoria(e:{operador:string|null;acao:string;entidade:str
  const quem=e.operador??'Alguém';const ent=entidadesAuditoria[e.entidade]??e.entidade;const c=e.contexto??{};const d=(e.depois&&typeof e.depois==='object'?e.depois:{}) as Obj;
  const alvo=c.paciente?`${e.entidade==='nf_notas'?(c.numero?`nº ${c.numero} `:''):''}de ${abreviarNome(c.paciente)}`:'';
  if(e.acao==='exportacao_mes')return `${quem} exportou ${String(d['tipo']??'arquivo').toUpperCase()} da competência ${String(d['competencia']??'')}`;
- const partes=[`${quem} ${rotuloAcao(e.acao)} ${e.entidade==='nf_emitente'||e.acao==='limpar_dados_demo'?'':`o${ent==='nota'||ent==='regra especial'||ent==='alíquota do mês'||ent==='importação'?'a':''} ${ent}`}${alvo?' '+alvo:''}`.replace(/\s+/g,' ').trim()];
+ const fem=['nota','regra especial','alíquota do mês','importação'].includes(ent);
+ const rot=rotuloAcao(e.acao);const semObjeto=e.entidade==='nf_emitente'||e.acao==='limpar_dados_demo'||/\b(nota|lote|parâmetro|contato|link|apelido|e-mail|atendimentos|emissor|envio|autorização)\b/.test(rot);
+ const partes=[[quem,rot,semObjeto?'':`${fem?'a':'o'} ${ent}`,alvo].filter(Boolean).join(' ')];
  const forma=(d['forma_pagamento'] as string|undefined)??c.forma;if(forma&&['ok_pagamento','forma_pagamento'].includes(e.acao))partes.push(formaLabel[forma]??forma);
  if(c.valor!=null&&e.entidade==='nf_atendimentos'||c.valor!=null&&e.entidade==='nf_notas')partes.push(moeda(c.valor!));
  if(e.acao==='cancelar_nota'&&d['motivo'])partes.push(`motivo: ${String(d['motivo'])}`);
