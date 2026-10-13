@@ -116,3 +116,27 @@ export function diffCampos(antes: Record<string, unknown> | null, depois: Record
 }
 
 export const aliquotaValida = (n: number) => Number.isFinite(n) && n >= 0 && n <= 33;
+
+export const camposFicha = ['nome','cpf','celular','email','cep','logradouro','numero','complemento','bairro','municipio_nome','uf','data_nascimento'] as const;
+export type CampoFicha = (typeof camposFicha)[number];
+export type Ficha = Record<CampoFicha, string | null>;
+const semAcento = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ');
+/** Normalizes AI output and drops any value that does not literally appear in the pasted text. */
+export function normalizarFicha(bruto: Partial<Record<string, unknown>>, texto: string): { ficha: Ficha; avisos: string[] } {
+  const ficha = {} as Ficha; const avisos: string[] = [];
+  const t = semAcento(texto), dig = somenteDigitos(texto);
+  for (const k of camposFicha) {
+    const v = bruto[k]; let s = typeof v === 'string' ? v.trim() : typeof v === 'number' ? String(v) : '';
+    if (!s || /^null$/i.test(s)) { ficha[k] = null; continue; }
+    const numerico = k === 'cpf' || k === 'cep' || k === 'celular';
+    if (numerico) s = somenteDigitos(s);
+    if (k === 'uf') s = s.toUpperCase();
+    const presente = numerico ? dig.includes(s) : k === 'data_nascimento' ? true : t.includes(semAcento(s));
+    if (!presente) { avisos.push(`“${k}” ignorado: não aparece no texto.`); ficha[k] = null; continue; }
+    ficha[k] = s;
+  }
+  if (ficha.cpf && !validarCPF(ficha.cpf)) avisos.push('O CPF da ficha é inválido — confira com o paciente.');
+  if (ficha.cep && ficha.cep.length !== 8) { avisos.push('O CEP da ficha não tem 8 dígitos.'); ficha.cep = null; }
+  if (ficha.uf && !/^[A-Z]{2}$/.test(ficha.uf)) ficha.uf = null;
+  return { ficha, avisos };
+}
