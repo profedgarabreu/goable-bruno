@@ -8,6 +8,13 @@
       "when": 1791852015859,
       "tag": "0000_nf_auth_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791852357621,
+      "tag": "0001_tighten_nf_function_grants",
+      "breakpoints": true
     }
   ]
 }
