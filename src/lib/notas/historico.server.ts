@@ -57,5 +57,5 @@ export function montarPlanilha(competencia:string,rows:LinhaHistorico[],emitente
  const wc=XLSX.utils.aoa_to_sheet([['Número','Data de competência','Tomador','CPF','Serviço','Valor','Status','Motivo','Nota substituta'],...canc.map(r=>[r.numero??'',dt(r.data),r.paciente,fmtCPF(r.cpf),r.servico,r.valor,statusLabel[r.status]??r.status,r.motivo??'',r.substituta??''])],{cellDates:true});
  formatar(wc,1,DATA);formatar(wc,5,MOEDA);wc['!cols']=[{wch:10},{wch:14},{wch:32},{wch:16},{wch:22},{wch:14},{wch:12},{wch:32},{wch:14}];
  XLSX.utils.book_append_sheet(wb,wc,'Canceladas');
- return XLSX.write(wb,{type:'array',bookType:'xlsx'}) as Uint8Array;
+ return new Uint8Array(XLSX.write(wb,{type:'array',bookType:'xlsx'}) as ArrayBuffer);
 }
