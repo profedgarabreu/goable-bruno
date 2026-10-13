@@ -1,0 +1,63 @@
+{
+  "_fonte": "NFS-e real emitida em 25/09/2026 no Portal Contribuinte (nfse.gov.br), lida de vídeo enviado pelo cliente. Valores com validar_contador=true precisam de confirmação antes de produção.",
+  "emitente": {
+    "razao_social": "BNAVES CONSULTORIO DE ANGIOLOGIA LTDA",
+    "cnpj": null,
+    "inscricao_municipal": null,
+    "municipio_nome": "Belo Horizonte",
+    "uf": "MG",
+    "municipio_ibge": "3106200",
+    "regime": "simples_me_epp",
+    "_pendente": "CNPJ e inscrição municipal: o cliente informa"
+  },
+  "parametros_fiscais": [
+    {
+      "nome": "Clínica médica — padrão (consulta)",
+      "c_trib_nac": "04.03.03",
+      "c_trib_mun": "04.03.03.001",
+      "nbs": "123012100",
+      "nbs_descricao": "Serviços de clínica médica",
+      "c_ind_op": "050103",
+      "municipio_incidencia_ibge": "3106200",
+      "trib_issqn": "operacao_tributavel",
+      "regime_especial": "nenhum",
+      "exigibilidade_suspensa": false,
+      "iss_retido": false,
+      "beneficio_municipal": false,
+      "pis_cofins_cst": "00",
+      "pis_cofins_cofins_csll_retencao": "0",
+      "ibscbs_cst": "410",
+      "ibscbs_class_trib": "410999",
+      "valor_aprox_tributos_modo": "aliquota_simples",
+      "versao": 1,
+      "validacao": {
+        "c_trib_mun": "confirmar separadores",
+        "c_ind_op": "validar_contador: o texto lido é 'Serviço prestado fisicamente sobre bem móvel material - Endereço do destinatário'",
+        "ibscbs_cst": "validar_contador: 410 = Imunidade e não incidência",
+        "ibscbs_class_trib": "validar_contador: 410999 = Operações não onerosas sem previsão de tributação"
+      }
+    }
+  ],
+  "aliquota_mes": [
+    { "competencia": "2026-09", "aliquota_simples": 11.80, "informado_por": "seed (lido da nota de 25/09/2026)" }
+  ],
+  "servicos": [
+    { "nome": "Primeira consulta", "gera_nota": true, "valor_padrao": null, "descricao_nota": "consulta médica", "aliases_prontmed": ["Primeira Consulta"] },
+    { "nome": "Consulta", "gera_nota": true, "valor_padrao": null, "descricao_nota": "consulta médica", "aliases_prontmed": ["Consulta"] },
+    { "nome": "Retorno", "gera_nota": true, "valor_padrao": null, "descricao_nota": "consulta médica de retorno", "aliases_prontmed": ["Retorno"], "_pendente": "confirmar se retorno é cobrado e gera nota" },
+    { "nome": "Resultado de exame", "gera_nota": true, "valor_padrao": null, "descricao_nota": "avaliação de resultado de exame", "aliases_prontmed": ["Resultado de exame"], "_pendente": "confirmar se é cobrado" },
+    { "nome": "Escleroterapia (sessão)", "gera_nota": true, "valor_padrao": null, "descricao_nota": "sessão de escleroterapia", "aliases_prontmed": ["Escleroterapia"], "_regra": "uma nota por sessão" },
+    { "nome": "Cirurgia a laser", "gera_nota": true, "valor_padrao": null, "descricao_nota": "procedimento cirúrgico a laser", "aliases_prontmed": ["Laser", "Cirurgia"], "_pendente": "quais cirurgias geram nota" }
+  ],
+  "_valores_vistos_no_relatorio": [470.00, 630.00],
+  "regras_especiais": [
+    { "nome": "AMAGIS", "aguarda_autorizacao": true, "iss_retido": true, "exige_declaracao": false, "tomador_cnpj": null, "observacao": "Lembrete no monitor: aguardar aut. p/ envio de NF - reter ISS. Detalhar com o contador." },
+    { "nome": "DESBAN", "aguarda_autorizacao": true, "iss_retido": false, "exige_declaracao": true, "tomador_cnpj": null, "observacao": "Lembrete no monitor: aguardar aut. p/ envio de NF - enviar declaração. Detalhar com o contador." }
+  ],
+  "medicos": [
+    { "nome": "Dr. Bruno de Lima Naves", "nome_no_prontmed": "Bruno de Lima Naves" },
+    { "nome": "Dra. (filha) — nome a confirmar", "nome_no_prontmed": null }
+  ],
+  "modelo_descricao": "{qtd_2dig} ({qtd_extenso}) {descricao_nota}",
+  "exemplo_descricao": "01 (uma) consulta médica"
+}
