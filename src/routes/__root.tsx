@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { OperatorProvider } from "@/components/clinic/operator-context";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -134,7 +135,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <OperatorProvider><Outlet /></OperatorProvider>
+      <OperatorProvider><Outlet /><Toaster richColors position="top-center" /></OperatorProvider>
     </QueryClientProvider>
   );
 }
