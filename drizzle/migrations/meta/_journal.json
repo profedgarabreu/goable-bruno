@@ -85,6 +85,13 @@
       "when": 1791857261132,
       "tag": "0011_m3_security_and_import",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791858638886,
+      "tag": "0012_m4_emissao",
+      "breakpoints": true
     }
   ]
 }
