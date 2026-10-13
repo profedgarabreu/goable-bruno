@@ -104,7 +104,7 @@ function ReemitirDialog({nota,servicos,regras,onClose}:{nota:Nota;servicos:{id:s
  const fns={cancelar:useServerFn(cancelarNota),editar:useServerFn(editarAtendimento),reemitir:useServerFn(reemitirNota)};
  const a=nota.atendimento!;const [jaCancelada,setJaCancelada]=useState(nota.status==='cancelada');
  const [motivo,setMotivo]=useState('');const [outro,setOutro]=useState('');
- const [servico,setServico]=useState(a.servico?.id??'');const [valor,setValor]=useState(String(a.valor).replace('.',','));const [qtd]=useState(1);
+ const [servico,setServico]=useState(a.servico?.id??'');const [valor,setValor]=useState(String(a.valor).replace('.',','));const qtd=a.quantidade;
  const [paciente,setPaciente]=useState<Paciente|null>(null);const [busy,setBusy]=useState(false);
  const v=Number(valor.replace(/\./g,'').replace(',','.'));const txt=textoMotivo(motivo,outro);
  async function salvar(){setBusy(true);try{
