@@ -1,3 +1,4 @@
+import {z} from 'zod';
 import {createFileRoute,useNavigate} from '@tanstack/react-router';
 import {useEffect,useState,type FormEvent} from 'react';
 import {ArrowRight,ShieldCheck,Loader2} from 'lucide-react';
@@ -7,7 +8,7 @@ import {Input} from '@/components/ui/input';
 import {Brand} from '@/components/clinic/brand';
 import {pageHead} from '@/lib/clinic';
 import clinic from '@/assets/clinic.jpg';
-export const Route=createFileRoute('/login')({validateSearch:(s:Record<string,unknown>)=>({convite:typeof s.convite==='string'?s.convite.slice(0,200):undefined}),head:()=>pageHead('Entrar','Acesso seguro ao Notas BNaves para o consultório de angiologia.'),component:Login});
+export const Route=createFileRoute('/login')({validateSearch:z.object({convite:z.string().max(200).optional()}),head:()=>pageHead('Entrar','Acesso seguro ao Notas BNaves para o consultório de angiologia.'),component:Login});
 function Login(){const navigate=useNavigate();const [open,setOpen]=useState(false);const [mode,setMode]=useState<'login'|'signup'|'reset'|'confirm'>('login');const [email,setEmail]=useState('');const [password,setPassword]=useState('');const [name,setName]=useState('');const [busy,setBusy]=useState(false);const [message,setMessage]=useState('');const [failed,setFailed]=useState(false);
  const {convite}=Route.useSearch();
  useEffect(()=>{if(convite){setMode('signup');setEmail(convite);}},[convite]);
