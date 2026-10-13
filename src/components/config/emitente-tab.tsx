@@ -14,6 +14,7 @@ import {useSalvar,dataBR,type Painel} from './shared';
 import {saoPauloDate} from '@/lib/clinic';
 import {ModoEmissor} from './modo-emissor';
 import {EnvioCanais} from './envio-canais';
+import {LimparDemo} from './limpar-demo';
 
 type EF={razao_social:string;cnpj:string;inscricao_municipal:string;municipio_nome:string;municipio_ibge:string;uf:string;regime:string;email_remetente:string;whatsapp_numero:string};
 const vazioEF:EF={razao_social:'',cnpj:'',inscricao_municipal:'',municipio_nome:'',municipio_ibge:'',uf:'',regime:'',email_remetente:'',whatsapp_numero:''};
