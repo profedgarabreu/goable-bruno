@@ -827,6 +827,24 @@ export type Database = {
           },
         ]
       }
+      nf_textos_envio: {
+        Row: {
+          atualizado_em: string
+          chave: string
+          conteudo: string
+        }
+        Insert: {
+          atualizado_em?: string
+          chave: string
+          conteudo: string
+        }
+        Update: {
+          atualizado_em?: string
+          chave?: string
+          conteudo?: string
+        }
+        Relationships: []
+      }
       pend_arquivos: {
         Row: {
           campo_key: string
