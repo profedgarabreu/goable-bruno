@@ -53,7 +53,9 @@ function Historico(){
    else{
     const r=await fx.zip({data:{...filtros,operador_id:operatorId}});const files:Record<string,Uint8Array>={[r.planilha.nome]:deB64(r.planilha.base64)};
     setProg({feito:0,total:r.arquivos.length});
-    for(const [i,a] of r.arquivos.entries()){const url=a.url??(await urlFn({data:{nota_id:a.nota_id,tipo:a.tipo}})).url;const res=await fetch(url);if(!res.ok)throw new Error(`Não foi possível baixar ${a.nome}.`);files[a.nome]=new Uint8Array(await res.arrayBuffer());setProg({feito:i+1,total:r.arquivos.length});}
+    let feitos=0;const fila=[...r.arquivos];
+    // 6 downloads in parallel: demo notes create their PDF on first open, so sequential would be slow.
+    await Promise.all(Array.from({length:6},async()=>{for(let a=fila.shift();a;a=fila.shift()){const url=a.url??(await urlFn({data:{nota_id:a.nota_id,tipo:a.tipo}})).url;const res=await fetch(url);if(!res.ok)throw new Error(`Não foi possível baixar ${a.nome}.`);files[a.nome]=new Uint8Array(await res.arrayBuffer());feitos++;setProg({feito:feitos,total:r.arquivos.length});}}));
     baixar(r.nome,new Blob([zipSync(files,{level:6})],{type:'application/zip'}));
    }
    toast.success('Exportação concluída.');
