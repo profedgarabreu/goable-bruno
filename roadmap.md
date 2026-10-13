@@ -35,3 +35,10 @@ Confirmation-email delivery to a real mailbox is not verified; confirmation rema
 - [x] Conferência, aprovação idempotente, tela do lote com progresso e polling
 - [x] Notas emitidas: PDF/XML assinados, cancelar, reemitir corrigida, emitir avulsa
 - [ ] Homologação/produção reais — aguardando tokens da Focus NFe e segredo do webhook
+
+## M5 — Envio ao paciente
+- [x] Regra de canal (e-mail com PDF/XML → WhatsApp com link → sem contato) e envio automático configurável
+- [x] Adapters Resend/Meta com modo simulado automático e estado na aba Emitente
+- [x] Link seguro /nota/:token com 3 dígitos do CPF, bloqueio após 5 erros e expiração de 7 dias
+- [x] Notas: badges de envio, reenviar, ver mensagem, copiar link, filtro; lote com "Enviar pendentes"; e-mail de teste
+- [ ] Envio real — aguardando RESEND_API_KEY (com domínio verificado) e META_WA_TOKEN/META_WA_PHONE_ID/META_WA_TEMPLATE

@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as SenhaRouteImport } from './routes/senha'
 import { Route as AuthenticatedWorkspaceRouteRouteImport } from './routes/_authenticated/_workspace/route'
 import { Route as AuthenticatedOperadorRouteImport } from './routes/_authenticated/operador'
+import { Route as NotaTokenRouteImport } from './routes/nota.$token'
 import { Route as ResponderTokenRouteImport } from './routes/responder/$token'
 import { Route as AuthenticatedWorkspaceIndexRouteImport } from './routes/_authenticated/_workspace/index'
 import { Route as AuthenticatedWorkspaceConferenciaRouteImport } from './routes/_authenticated/_workspace/conferencia'
@@ -55,6 +56,11 @@ const AuthenticatedOperadorRoute = AuthenticatedOperadorRouteImport.update({
   id: '/operador',
   path: '/operador',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const NotaTokenRoute = NotaTokenRouteImport.update({
+  id: '/nota/$token',
+  path: '/nota/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ResponderTokenRoute = ResponderTokenRouteImport.update({
   id: '/responder/$token',
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/senha': typeof SenhaRoute
   '/operador': typeof AuthenticatedOperadorRoute
+  '/nota/$token': typeof NotaTokenRoute
   '/responder/$token': typeof ResponderTokenRoute
   '/conferencia': typeof AuthenticatedWorkspaceConferenciaRoute
   '/configuracoes': typeof AuthenticatedWorkspaceConfiguracoesRoute
@@ -144,6 +151,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/senha': typeof SenhaRoute
   '/operador': typeof AuthenticatedOperadorRoute
+  '/nota/$token': typeof NotaTokenRoute
   '/responder/$token': typeof ResponderTokenRoute
   '/conferencia': typeof AuthenticatedWorkspaceConferenciaRoute
   '/configuracoes': typeof AuthenticatedWorkspaceConfiguracoesRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/senha': typeof SenhaRoute
   '/_authenticated/_workspace': typeof AuthenticatedWorkspaceRouteRouteWithChildren
   '/_authenticated/operador': typeof AuthenticatedOperadorRoute
+  '/nota/$token': typeof NotaTokenRoute
   '/responder/$token': typeof ResponderTokenRoute
   '/_authenticated/_workspace/conferencia': typeof AuthenticatedWorkspaceConferenciaRoute
   '/_authenticated/_workspace/configuracoes': typeof AuthenticatedWorkspaceConfiguracoesRoute
@@ -183,6 +192,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/senha'
     | '/operador'
+    | '/nota/$token'
     | '/responder/$token'
     | '/conferencia'
     | '/configuracoes'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/senha'
     | '/operador'
+    | '/nota/$token'
     | '/responder/$token'
     | '/conferencia'
     | '/configuracoes'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/senha'
     | '/_authenticated/_workspace'
     | '/_authenticated/operador'
+    | '/nota/$token'
     | '/responder/$token'
     | '/_authenticated/_workspace/conferencia'
     | '/_authenticated/_workspace/configuracoes'
@@ -236,6 +248,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   LoginRoute: typeof LoginRoute
   SenhaRoute: typeof SenhaRoute
+  NotaTokenRoute: typeof NotaTokenRoute
   ResponderTokenRoute: typeof ResponderTokenRoute
   ApiWebhooksEmissorRoute: typeof ApiWebhooksEmissorRoute
 }
@@ -283,6 +296,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/operador'
       preLoaderRoute: typeof AuthenticatedOperadorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/nota/$token': {
+      id: '/nota/$token'
+      path: '/nota/$token'
+      fullPath: '/nota/$token'
+      preLoaderRoute: typeof NotaTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/responder/$token': {
       id: '/responder/$token'
@@ -417,6 +437,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   LoginRoute: LoginRoute,
   SenhaRoute: SenhaRoute,
+  NotaTokenRoute: NotaTokenRoute,
   ResponderTokenRoute: ResponderTokenRoute,
   ApiWebhooksEmissorRoute: ApiWebhooksEmissorRoute,
 }
