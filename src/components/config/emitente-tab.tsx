@@ -44,6 +44,7 @@ export function EmitenteTab({p}:{p:Painel}){
   <EnvioCanais/>
   <div className="flex items-center justify-between"><h2 className="text-lg font-semibold">Dados de quem emite a nota</h2>{admin&&<Button variant="action" onClick={abrir}><Pencil/>Editar emitente</Button>}</div>
   <div className="ficha">{linhas.map(([l,x])=><Fragment key={l}><div className="ficha-label">{l}</div><div>{x}</div></Fragment>)}</div>
+  {admin&&<LimparDemo/>}
   {!admin&&<p className="text-sm text-muted-foreground">Somente a administração Goable altera os dados do emitente.</p>}
   <EditDrawer open={edit} onOpenChange={setEdit} title="Editar emitente" onSave={save} saving={busy} canSave={!cnpjErr&&!!f.razao_social}>
    <Field label="Razão social"><Input value={f.razao_social??''} onChange={x=>setF({...f,razao_social:x.target.value})}/></Field>
