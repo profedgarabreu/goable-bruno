@@ -1,0 +1,7 @@
+Data;Paciente;Tipo de atendimento;Profissional;Valor (R$);Tipo de pagamento;Convênio
+13/10/2026;Maria Aparecida Souza Lima;Primeira Consulta;Bruno de Lima Naves;630,00;PIX;Particular
+13/10/2026;João Carlos Pereira;Consulta;Bruno de Lima Naves;470,00;Cartão de crédito;Particular
+13/10/2026;Ana Beatriz Rocha;Retorno;Bruno de Lima Naves;0,00;;Particular
+13/10/2026;Roberto Almeida;Consulta;Bruno de Lima Naves;0,00;;UNIMED
+13/10/2026;Luciana Ferreira Dias;Escleroterapia;Bruno de Lima Naves;350,00;Cartão de débito;Particular
+13/10/2026;Paulo Henrique Matos;Consulta;Bruno de Lima Naves;470,00;Dinheiro;Particular

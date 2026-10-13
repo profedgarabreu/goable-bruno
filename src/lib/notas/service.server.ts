@@ -21,10 +21,11 @@ export async function configFiscal(db:Db){
  return {competencia,emitente:e,parametro:ok(parametro),aliquota:ok(aliquota),producaoLiberada:!!(e?.cnpj&&e.parametros_validados_em)};
 }
 export async function bloqueiosDe(db:Db,atendimentoId:string){
- const a=ok(await db.from('nf_atendimentos').select('id,status,data_atendimento,valor,convenio,aprovado_em,servico_id,paciente:nf_pacientes(cpf,cep,logradouro,numero,municipio_ibge,regra:nf_regras_especiais(nome,aguarda_autorizacao,ativo)),servico:nf_servicos(parametro_fiscal_id)').eq('id',atendimentoId).maybeSingle());
+ const a=ok(await db.from('nf_atendimentos').select('id,status,data_atendimento,valor,convenio,aprovado_em,autorizacao_liberada,servico_id,paciente:nf_pacientes(cpf,cep,logradouro,numero,municipio_ibge,regra:nf_regras_especiais(nome,aguarda_autorizacao,ativo)),servico:nf_servicos(parametro_fiscal_id)').eq('id',atendimentoId).maybeSingle());
  if(!a)throw new Error('Atendimento não encontrado.');
  const aliq=ok(await db.from('nf_aliquota_mes').select('aliquota_simples').eq('competencia',competenciaDe(a.data_atendimento)).maybeSingle());
  const p=a.paciente;
- const bloqueios=calcularBloqueios({atendimento:{data_atendimento:a.data_atendimento,valor:Number(a.valor),convenio:a.convenio,aprovado_em:a.aprovado_em},paciente:{cpf:p?.cpf??null,cep:p?.cep??null,logradouro:p?.logradouro??null,numero:p?.numero??null,municipio_ibge:p?.municipio_ibge??null},servico:a.servico,aliquotaDoMes:aliq?Number(aliq.aliquota_simples):null,regra:p?.regra??null});
+ const bloqueios=calcularBloqueios({atendimento:{data_atendimento:a.data_atendimento,valor:Number(a.valor),convenio:a.convenio,aprovado_em:a.aprovado_em,autorizacao_liberada:a.autorizacao_liberada},paciente:{cpf:p?.cpf??null,cep:p?.cep??null,logradouro:p?.logradouro??null,numero:p?.numero??null,municipio_ibge:p?.municipio_ibge??null},servico:a.servico,aliquotaDoMes:aliq?Number(aliq.aliquota_simples):null,regra:p?.regra??null});
  return {atendimento:a as typeof a & {status:StatusAtendimento},bloqueios};
 }
+export function okOne<T>(r:{data:T;error:{message:string}|null}):NonNullable<T>{if(r.error)throw new Error(r.error.message);if(r.data==null)throw new Error('Registro não encontrado.');return r.data as NonNullable<T>;}
