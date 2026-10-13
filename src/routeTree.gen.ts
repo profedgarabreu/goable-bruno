@@ -9,50 +9,328 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as SenhaRouteImport } from './routes/senha'
+import { Route as AuthenticatedWorkspaceRouteRouteImport } from './routes/_authenticated/_workspace/route'
+import { Route as AuthenticatedOperadorRouteImport } from './routes/_authenticated/operador'
+import { Route as AuthenticatedWorkspaceIndexRouteImport } from './routes/_authenticated/_workspace/index'
+import { Route as AuthenticatedWorkspaceConferenciaRouteImport } from './routes/_authenticated/_workspace/conferencia'
+import { Route as AuthenticatedWorkspaceConfiguracoesRouteImport } from './routes/_authenticated/_workspace/configuracoes'
+import { Route as AuthenticatedWorkspaceHistoricoRouteImport } from './routes/_authenticated/_workspace/historico'
+import { Route as AuthenticatedWorkspaceImportarRouteImport } from './routes/_authenticated/_workspace/importar'
+import { Route as AuthenticatedWorkspaceNotasRouteImport } from './routes/_authenticated/_workspace/notas'
+import { Route as AuthenticatedWorkspacePacientesRouteImport } from './routes/_authenticated/_workspace/pacientes'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SenhaRoute = SenhaRouteImport.update({
+  id: '/senha',
+  path: '/senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedWorkspaceRouteRoute =
+  AuthenticatedWorkspaceRouteRouteImport.update({
+    id: '/_workspace',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedOperadorRoute = AuthenticatedOperadorRouteImport.update({
+  id: '/operador',
+  path: '/operador',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWorkspaceIndexRoute =
+  AuthenticatedWorkspaceIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedWorkspaceRouteRoute,
+  } as any)
+const AuthenticatedWorkspaceConferenciaRoute =
+  AuthenticatedWorkspaceConferenciaRouteImport.update({
+    id: '/conferencia',
+    path: '/conferencia',
+    getParentRoute: () => AuthenticatedWorkspaceRouteRoute,
+  } as any)
+const AuthenticatedWorkspaceConfiguracoesRoute =
+  AuthenticatedWorkspaceConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedWorkspaceRouteRoute,
+  } as any)
+const AuthenticatedWorkspaceHistoricoRoute =
+  AuthenticatedWorkspaceHistoricoRouteImport.update({
+    id: '/historico',
+    path: '/historico',
+    getParentRoute: () => AuthenticatedWorkspaceRouteRoute,
+  } as any)
+const AuthenticatedWorkspaceImportarRoute =
+  AuthenticatedWorkspaceImportarRouteImport.update({
+    id: '/importar',
+    path: '/importar',
+    getParentRoute: () => AuthenticatedWorkspaceRouteRoute,
+  } as any)
+const AuthenticatedWorkspaceNotasRoute =
+  AuthenticatedWorkspaceNotasRouteImport.update({
+    id: '/notas',
+    path: '/notas',
+    getParentRoute: () => AuthenticatedWorkspaceRouteRoute,
+  } as any)
+const AuthenticatedWorkspacePacientesRoute =
+  AuthenticatedWorkspacePacientesRouteImport.update({
+    id: '/pacientes',
+    path: '/pacientes',
+    getParentRoute: () => AuthenticatedWorkspaceRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AuthenticatedWorkspaceIndexRoute
+  '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
+  '/senha': typeof SenhaRoute
+  '/operador': typeof AuthenticatedOperadorRoute
+  '/conferencia': typeof AuthenticatedWorkspaceConferenciaRoute
+  '/configuracoes': typeof AuthenticatedWorkspaceConfiguracoesRoute
+  '/historico': typeof AuthenticatedWorkspaceHistoricoRoute
+  '/importar': typeof AuthenticatedWorkspaceImportarRoute
+  '/notas': typeof AuthenticatedWorkspaceNotasRoute
+  '/pacientes': typeof AuthenticatedWorkspacePacientesRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof AuthenticatedWorkspaceIndexRoute
+  '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
+  '/senha': typeof SenhaRoute
+  '/operador': typeof AuthenticatedOperadorRoute
+  '/conferencia': typeof AuthenticatedWorkspaceConferenciaRoute
+  '/configuracoes': typeof AuthenticatedWorkspaceConfiguracoesRoute
+  '/historico': typeof AuthenticatedWorkspaceHistoricoRoute
+  '/importar': typeof AuthenticatedWorkspaceImportarRoute
+  '/notas': typeof AuthenticatedWorkspaceNotasRoute
+  '/pacientes': typeof AuthenticatedWorkspacePacientesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
+  '/senha': typeof SenhaRoute
+  '/_authenticated/_workspace': typeof AuthenticatedWorkspaceRouteRouteWithChildren
+  '/_authenticated/operador': typeof AuthenticatedOperadorRoute
+  '/_authenticated/_workspace/conferencia': typeof AuthenticatedWorkspaceConferenciaRoute
+  '/_authenticated/_workspace/configuracoes': typeof AuthenticatedWorkspaceConfiguracoesRoute
+  '/_authenticated/_workspace/historico': typeof AuthenticatedWorkspaceHistoricoRoute
+  '/_authenticated/_workspace/importar': typeof AuthenticatedWorkspaceImportarRoute
+  '/_authenticated/_workspace/notas': typeof AuthenticatedWorkspaceNotasRoute
+  '/_authenticated/_workspace/pacientes': typeof AuthenticatedWorkspacePacientesRoute
+  '/_authenticated/_workspace/': typeof AuthenticatedWorkspaceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/login'
+    | '/senha'
+    | '/operador'
+    | '/conferencia'
+    | '/configuracoes'
+    | '/historico'
+    | '/importar'
+    | '/notas'
+    | '/pacientes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/login'
+    | '/senha'
+    | '/operador'
+    | '/conferencia'
+    | '/configuracoes'
+    | '/historico'
+    | '/importar'
+    | '/notas'
+    | '/pacientes'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/auth'
+    | '/login'
+    | '/senha'
+    | '/_authenticated/_workspace'
+    | '/_authenticated/operador'
+    | '/_authenticated/_workspace/conferencia'
+    | '/_authenticated/_workspace/configuracoes'
+    | '/_authenticated/_workspace/historico'
+    | '/_authenticated/_workspace/importar'
+    | '/_authenticated/_workspace/notas'
+    | '/_authenticated/_workspace/pacientes'
+    | '/_authenticated/_workspace/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  LoginRoute: typeof LoginRoute
+  SenhaRoute: typeof SenhaRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/senha': {
+      id: '/senha'
+      path: '/senha'
+      fullPath: '/senha'
+      preLoaderRoute: typeof SenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/_workspace': {
+      id: '/_authenticated/_workspace'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedWorkspaceRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/operador': {
+      id: '/_authenticated/operador'
+      path: '/operador'
+      fullPath: '/operador'
+      preLoaderRoute: typeof AuthenticatedOperadorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/_workspace/': {
+      id: '/_authenticated/_workspace/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedWorkspaceIndexRouteImport
+      parentRoute: typeof AuthenticatedWorkspaceRouteRoute
+    }
+    '/_authenticated/_workspace/conferencia': {
+      id: '/_authenticated/_workspace/conferencia'
+      path: '/conferencia'
+      fullPath: '/conferencia'
+      preLoaderRoute: typeof AuthenticatedWorkspaceConferenciaRouteImport
+      parentRoute: typeof AuthenticatedWorkspaceRouteRoute
+    }
+    '/_authenticated/_workspace/configuracoes': {
+      id: '/_authenticated/_workspace/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AuthenticatedWorkspaceConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedWorkspaceRouteRoute
+    }
+    '/_authenticated/_workspace/historico': {
+      id: '/_authenticated/_workspace/historico'
+      path: '/historico'
+      fullPath: '/historico'
+      preLoaderRoute: typeof AuthenticatedWorkspaceHistoricoRouteImport
+      parentRoute: typeof AuthenticatedWorkspaceRouteRoute
+    }
+    '/_authenticated/_workspace/importar': {
+      id: '/_authenticated/_workspace/importar'
+      path: '/importar'
+      fullPath: '/importar'
+      preLoaderRoute: typeof AuthenticatedWorkspaceImportarRouteImport
+      parentRoute: typeof AuthenticatedWorkspaceRouteRoute
+    }
+    '/_authenticated/_workspace/notas': {
+      id: '/_authenticated/_workspace/notas'
+      path: '/notas'
+      fullPath: '/notas'
+      preLoaderRoute: typeof AuthenticatedWorkspaceNotasRouteImport
+      parentRoute: typeof AuthenticatedWorkspaceRouteRoute
+    }
+    '/_authenticated/_workspace/pacientes': {
+      id: '/_authenticated/_workspace/pacientes'
+      path: '/pacientes'
+      fullPath: '/pacientes'
+      preLoaderRoute: typeof AuthenticatedWorkspacePacientesRouteImport
+      parentRoute: typeof AuthenticatedWorkspaceRouteRoute
     }
   }
 }
 
+interface AuthenticatedWorkspaceRouteRouteChildren {
+  AuthenticatedWorkspaceConferenciaRoute: typeof AuthenticatedWorkspaceConferenciaRoute
+  AuthenticatedWorkspaceConfiguracoesRoute: typeof AuthenticatedWorkspaceConfiguracoesRoute
+  AuthenticatedWorkspaceHistoricoRoute: typeof AuthenticatedWorkspaceHistoricoRoute
+  AuthenticatedWorkspaceImportarRoute: typeof AuthenticatedWorkspaceImportarRoute
+  AuthenticatedWorkspaceNotasRoute: typeof AuthenticatedWorkspaceNotasRoute
+  AuthenticatedWorkspacePacientesRoute: typeof AuthenticatedWorkspacePacientesRoute
+  AuthenticatedWorkspaceIndexRoute: typeof AuthenticatedWorkspaceIndexRoute
+}
+
+const AuthenticatedWorkspaceRouteRouteChildren: AuthenticatedWorkspaceRouteRouteChildren =
+  {
+    AuthenticatedWorkspaceConferenciaRoute:
+      AuthenticatedWorkspaceConferenciaRoute,
+    AuthenticatedWorkspaceConfiguracoesRoute:
+      AuthenticatedWorkspaceConfiguracoesRoute,
+    AuthenticatedWorkspaceHistoricoRoute: AuthenticatedWorkspaceHistoricoRoute,
+    AuthenticatedWorkspaceImportarRoute: AuthenticatedWorkspaceImportarRoute,
+    AuthenticatedWorkspaceNotasRoute: AuthenticatedWorkspaceNotasRoute,
+    AuthenticatedWorkspacePacientesRoute: AuthenticatedWorkspacePacientesRoute,
+    AuthenticatedWorkspaceIndexRoute: AuthenticatedWorkspaceIndexRoute,
+  }
+
+const AuthenticatedWorkspaceRouteRouteWithChildren =
+  AuthenticatedWorkspaceRouteRoute._addFileChildren(
+    AuthenticatedWorkspaceRouteRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedWorkspaceRouteRoute: typeof AuthenticatedWorkspaceRouteRouteWithChildren
+  AuthenticatedOperadorRoute: typeof AuthenticatedOperadorRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedWorkspaceRouteRoute:
+    AuthenticatedWorkspaceRouteRouteWithChildren,
+  AuthenticatedOperadorRoute: AuthenticatedOperadorRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  LoginRoute: LoginRoute,
+  SenhaRoute: SenhaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
