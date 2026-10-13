@@ -14,16 +14,58 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      nf_perfis: {
+        Row: {
+          criado_em: string
+          nome: string
+          user_id: string
+        }
+        Insert: {
+          criado_em?: string
+          nome?: string
+          user_id: string
+        }
+        Update: {
+          criado_em?: string
+          nome?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["nf_papel"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["nf_papel"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["nf_papel"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      nf_has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["nf_papel"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      nf_signup_open: { Args: never; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      nf_papel: "consultorio" | "admin_goable"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +192,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      nf_papel: ["consultorio", "admin_goable"],
+    },
   },
 } as const
