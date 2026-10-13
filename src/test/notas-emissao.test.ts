@@ -104,3 +104,13 @@ describe('focusMapper',()=>{
   expect(()=>new FocusEmissor('homologacao',undefined)).toThrow('token da Focus NFe ainda não foi configurado');
  });
 });
+
+import {verificarSegredoWebhook} from '@/lib/notas/webhook';
+describe('webhook do emissor',()=>{
+ it('503 sem secret, 401 com secret errado, 200 com o certo',()=>{
+  expect(verificarSegredoWebhook(undefined,'qualquer')).toBe(503);
+  expect(verificarSegredoWebhook('s3gredo-forte','errado')).toBe(401);
+  expect(verificarSegredoWebhook('s3gredo-forte',null)).toBe(401);
+  expect(verificarSegredoWebhook('s3gredo-forte','s3gredo-forte')).toBe(200);
+ });
+});
