@@ -19,3 +19,7 @@
 - Scope Pendências items to a client link; capability-token server functions exclusively serve anonymous clients, while authenticated admin functions verify protected user_roles before any privileged work.
 - Keep Pendências field validation shared and server-enforced, response/history writes transactional, and private attachment quotas serialized per item to prevent concurrent upload bypasses.
 - Build response ZIPs in the authenticated browser with fflate and individually authorized file downloads to avoid buffering the whole archive in a server worker.
+- Keep notes-module business rules (CPF, descriptions, blockers, status transitions, dedup key) pure in `src/lib/notas/rules.ts` and enforce them in server functions so they stay unit-testable and server-authoritative.
+- Declare every server function as a literal `createServerFn(...)` chain at its export; factory wrappers hide it from the compiler and make handlers run in the browser.
+- Version fiscal parameters through the `nf_parametro_nova_versao` database function, never in-place edits, so issued notes keep pointing at the exact version used.
+- Mark fictional demo rows with `demo=true` and remove them only through the admin `limparDadosDemo` function before production.
