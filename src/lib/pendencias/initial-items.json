@@ -1,0 +1,327 @@
+[
+  {
+    "ordem": 1,
+    "categoria": "fiscal",
+    "prioridade": "bloqueia_producao",
+    "titulo": "Dados da empresa que emite as notas",
+    "descricao": "Vimos na nota de exemplo o nome BNAVES CONSULTORIO DE ANGIOLOGIA LTDA. Precisamos do CNPJ e da inscrição municipal para configurar a emissão.",
+    "tipo": "composto",
+    "config": {
+      "campos": [
+        {
+          "key": "cnpj",
+          "tipo": "cnpj",
+          "label": "CNPJ"
+        },
+        {
+          "key": "im",
+          "tipo": "texto_curto",
+          "label": "Inscrição municipal"
+        },
+        {
+          "key": "mesmo",
+          "tipo": "sim_nao_naosei",
+          "label": "A Dra. [sua filha] emite pelo mesmo CNPJ?"
+        },
+        {
+          "key": "cnpj_filha",
+          "tipo": "cnpj",
+          "label": "Se não, qual o CNPJ dela?",
+          "opcional": true
+        },
+        {
+          "key": "nome_dra",
+          "tipo": "texto_curto",
+          "label": "Nome completo da Dra."
+        }
+      ]
+    },
+    "obrigatoria": true,
+    "status": "aberta",
+    "comentario_goable": ""
+  },
+  {
+    "ordem": 2,
+    "categoria": "fiscal",
+    "prioridade": "bloqueia_producao",
+    "titulo": "Certificado digital",
+    "descricao": "Define se o sistema consegue emitir sozinho na nuvem. Se for token, vamos recomendar uma alternativa simples. Não envie a senha do certificado aqui.",
+    "tipo": "composto",
+    "config": {
+      "campos": [
+        {
+          "key": "tipo",
+          "tipo": "escolha_unica",
+          "label": "Tipo",
+          "opcoes": [
+            "Arquivo no computador (A1)",
+            "Token/cartão que espeta no computador (A3)",
+            "Não sei"
+          ]
+        },
+        {
+          "key": "validade",
+          "tipo": "data",
+          "label": "Validade",
+          "opcional": true
+        },
+        {
+          "key": "foto",
+          "tipo": "arquivos",
+          "label": "Foto ou print da tela do certificado",
+          "accept": ".png,.jpg,.jpeg,.webp,.pdf",
+          "opcional": true,
+          "maxArquivos": 3
+        }
+      ]
+    },
+    "obrigatoria": true,
+    "status": "aberta",
+    "comentario_goable": ""
+  },
+  {
+    "ordem": 3,
+    "categoria": "dados",
+    "prioridade": "bloqueia_producao",
+    "titulo": "Relatório do ProntMed de um dia",
+    "descricao": "No ProntMed, abra Relatório Financeiro > Particular, filtre um dia com atendimentos e exporte (Excel ou PDF). Se não houver exportação, pode ser um print da tela. É com ele que o sistema vai aprender a ler os atendimentos.",
+    "tipo": "composto",
+    "config": {
+      "campos": [
+        {
+          "key": "arquivos",
+          "tipo": "arquivos",
+          "label": "Arquivos",
+          "accept": ".xlsx,.xls,.csv,.pdf,.png,.jpg,.jpeg",
+          "maxArquivos": 5
+        },
+        {
+          "key": "data",
+          "tipo": "data",
+          "label": "Data do relatório"
+        }
+      ]
+    },
+    "obrigatoria": true,
+    "status": "aberta",
+    "comentario_goable": ""
+  },
+  {
+    "ordem": 4,
+    "categoria": "fiscal",
+    "prioridade": "bloqueia_producao",
+    "titulo": "Contato do contador",
+    "descricao": "Precisamos que o contador confirme alguns códigos fiscais da nota e a alíquota do Simples de cada mês.",
+    "tipo": "composto",
+    "config": {
+      "campos": [
+        {
+          "key": "contato",
+          "tipo": "contato",
+          "label": "Contato"
+        },
+        {
+          "key": "permissao",
+          "tipo": "sim_nao_naosei",
+          "label": "Podemos falar diretamente com ele sobre os códigos da nota?"
+        }
+      ]
+    },
+    "obrigatoria": true,
+    "status": "aberta",
+    "comentario_goable": ""
+  },
+  {
+    "ordem": 5,
+    "categoria": "dados",
+    "prioridade": "importante",
+    "titulo": "Serviços cobrados e valores",
+    "descricao": "Liste os atendimentos particulares e o valor de cada um (ex.: primeira consulta, consulta, retorno, resultado de exame, sessão de escleroterapia, cirurgias a laser). Vimos valores de R$ 630 e R$ 470 no relatório; a quais serviços correspondem?",
+    "tipo": "texto_longo",
+    "config": {
+      "anexos": {
+        "accept": ".xlsx,.xls,.csv,.pdf,.png,.jpg,.jpeg",
+        "opcional": true,
+        "maxArquivos": 5
+      }
+    },
+    "obrigatoria": true,
+    "status": "aberta",
+    "comentario_goable": ""
+  },
+  {
+    "ordem": 6,
+    "categoria": "regras",
+    "prioridade": "importante",
+    "titulo": "Quais cirurgias a laser geram nota?",
+    "descricao": "Conte quais cirurgias a laser precisam de nota e se existe alguma exceção.",
+    "tipo": "texto_longo",
+    "config": {},
+    "obrigatoria": true,
+    "status": "aberta",
+    "comentario_goable": ""
+  },
+  {
+    "ordem": 7,
+    "categoria": "regras",
+    "prioridade": "importante",
+    "titulo": "Regras especiais: AMAGIS e DESBAN",
+    "descricao": "Vimos lembretes no monitor da recepção: 'AMAGIS — aguardar autorização p/ envio de NF — reter ISS' e 'DESBAN — aguardar autorização p/ envio de NF — enviar declaração'. Queremos que o sistema siga essas regras sozinho.",
+    "tipo": "composto",
+    "config": {
+      "campos": [
+        {
+          "key": "regras",
+          "tipo": "texto_longo",
+          "label": "O que são e como funciona cada uma?"
+        },
+        {
+          "key": "iss",
+          "tipo": "texto_longo",
+          "label": "Quando a nota tem retenção de ISS?"
+        },
+        {
+          "key": "modelo",
+          "tipo": "arquivos",
+          "label": "Modelo de declaração ou autorização",
+          "accept": ".pdf,.doc,.docx,.png,.jpg,.jpeg",
+          "opcional": true,
+          "maxArquivos": 5
+        }
+      ]
+    },
+    "obrigatoria": true,
+    "status": "aberta",
+    "comentario_goable": ""
+  },
+  {
+    "ordem": 8,
+    "categoria": "envio",
+    "prioridade": "importante",
+    "titulo": "E-mail que vai enviar as notas aos pacientes",
+    "descricao": "Informe o e-mail remetente e quem pode autorizar sua configuração. Não envie senhas.",
+    "tipo": "composto",
+    "config": {
+      "campos": [
+        {
+          "key": "email",
+          "tipo": "email",
+          "label": "E-mail remetente"
+        },
+        {
+          "key": "contato",
+          "tipo": "contato",
+          "label": "Quem pode liberar o acesso para configurarmos?"
+        }
+      ]
+    },
+    "obrigatoria": true,
+    "status": "aberta",
+    "comentario_goable": ""
+  },
+  {
+    "ordem": 9,
+    "categoria": "envio",
+    "prioridade": "importante",
+    "titulo": "WhatsApp do consultório",
+    "descricao": "Usado só quando o paciente não tem e-mail. Enviaremos um link seguro, nunca a nota anexada.",
+    "tipo": "composto",
+    "config": {
+      "campos": [
+        {
+          "key": "numero",
+          "tipo": "telefone",
+          "label": "Número"
+        },
+        {
+          "key": "responsavel",
+          "tipo": "texto_curto",
+          "label": "Quem responde por ele"
+        }
+      ]
+    },
+    "obrigatoria": true,
+    "status": "aberta",
+    "comentario_goable": ""
+  },
+  {
+    "ordem": 10,
+    "categoria": "dados",
+    "prioridade": "importante",
+    "titulo": "E-mail dos pacientes",
+    "descricao": "Na ficha do ProntMed não encontramos campo de e-mail. Onde vocês têm o e-mail dos pacientes hoje?",
+    "tipo": "escolha_unica",
+    "config": {
+      "opcoes": [
+        "Está no ProntMed",
+        "Fica em outro lugar (planilha/agenda)",
+        "Não costumamos ter",
+        "Outro"
+      ]
+    },
+    "obrigatoria": true,
+    "status": "aberta",
+    "comentario_goable": ""
+  },
+  {
+    "ordem": 11,
+    "categoria": "operacao",
+    "prioridade": "importante",
+    "titulo": "Melhor horário para emitir as notas do dia",
+    "descricao": "Qual horário funciona melhor para a rotina do consultório?",
+    "tipo": "escolha_unica",
+    "config": {
+      "opcoes": [
+        "No fim do dia",
+        "Na manhã seguinte",
+        "À tarde",
+        "Outro"
+      ]
+    },
+    "obrigatoria": true,
+    "status": "aberta",
+    "comentario_goable": ""
+  },
+  {
+    "ordem": 12,
+    "categoria": "fiscal",
+    "prioridade": "desejavel",
+    "titulo": "Notas já emitidas (PDF)",
+    "descricao": "De preferência uma consulta, uma escleroterapia, uma cirurgia e uma que precisou ser cancelada ou refeita.",
+    "tipo": "arquivos",
+    "config": {
+      "accept": ".pdf",
+      "maxArquivos": 5
+    },
+    "obrigatoria": false,
+    "status": "aberta",
+    "comentario_goable": ""
+  },
+  {
+    "ordem": 13,
+    "categoria": "operacao",
+    "prioridade": "desejavel",
+    "titulo": "Quem vai usar o sistema",
+    "descricao": "Confirme o nome das secretárias que vão operar (vimos Marli e Cíntia) e se mais alguém precisa de acesso.",
+    "tipo": "texto_longo",
+    "config": {},
+    "obrigatoria": false,
+    "status": "aberta",
+    "comentario_goable": ""
+  },
+  {
+    "ordem": 14,
+    "categoria": "outros",
+    "prioridade": "desejavel",
+    "titulo": "Logotipo do consultório",
+    "descricao": "Opcional, para personalizar o sistema e o e-mail que o paciente recebe.",
+    "tipo": "arquivos",
+    "config": {
+      "accept": ".png,.jpg,.jpeg,.svg,.pdf",
+      "maxArquivos": 2
+    },
+    "obrigatoria": false,
+    "status": "aberta",
+    "comentario_goable": ""
+  }
+]

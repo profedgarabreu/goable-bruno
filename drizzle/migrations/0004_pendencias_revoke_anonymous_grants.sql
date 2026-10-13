@@ -1,0 +1,2 @@
+REVOKE ALL ON public.pend_links,public.pend_itens,public.pend_respostas,public.pend_respostas_hist,public.pend_arquivos FROM anon;
+COMMENT ON TABLE public.pend_links IS 'Private capability links: anonymous clients use token-validated application server functions only.';

@@ -6,4 +6,11 @@
 
 M1–M7 are out of scope for this delivery. Fiscal seed retained for M1, not imported.
 
+# M0.5 — Central de Pendências
+- [x] Private schema, admin RLS, capability-token access, initial 14 questions and active client link.
+- [x] Server-validated answers, revision history, private uploads and ten-minute admin downloads.
+- [x] Mobile-first client form with every requested field type and progress.
+- [x] Admin questions editor, status review, link management, sidebar badge and ZIP export.
+- [x] Verify acceptance criteria, security and responsive layouts; deliver detailed report and client URL.
+
 Confirmation-email delivery to a real mailbox is not verified; confirmation remains enabled. Temporary QA accounts were removed. Authorization roles are in user_roles rather than nf_perfis for safety. First account is the Goable administrator. Extra public routes /auth (alias) and /senha support managed auth and password recovery.

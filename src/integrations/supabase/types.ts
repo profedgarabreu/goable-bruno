@@ -32,6 +32,206 @@ export type Database = {
         }
         Relationships: []
       }
+      pend_arquivos: {
+        Row: {
+          campo_key: string
+          enviado_em: string
+          enviado_por_nome: string
+          id: string
+          item_id: string
+          mime: string
+          nome_original: string
+          storage_path: string
+          tamanho: number
+        }
+        Insert: {
+          campo_key?: string
+          enviado_em?: string
+          enviado_por_nome: string
+          id?: string
+          item_id: string
+          mime: string
+          nome_original: string
+          storage_path: string
+          tamanho: number
+        }
+        Update: {
+          campo_key?: string
+          enviado_em?: string
+          enviado_por_nome?: string
+          id?: string
+          item_id?: string
+          mime?: string
+          nome_original?: string
+          storage_path?: string
+          tamanho?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pend_arquivos_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "pend_itens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pend_itens: {
+        Row: {
+          atualizado_em: string
+          categoria: string
+          comentario_goable: string
+          config: Json
+          criado_em: string
+          descricao: string
+          id: string
+          link_id: string
+          obrigatoria: boolean
+          ordem: number
+          prioridade: string
+          status: string
+          tipo: string
+          titulo: string
+        }
+        Insert: {
+          atualizado_em?: string
+          categoria?: string
+          comentario_goable?: string
+          config?: Json
+          criado_em?: string
+          descricao?: string
+          id?: string
+          link_id: string
+          obrigatoria?: boolean
+          ordem?: number
+          prioridade: string
+          status?: string
+          tipo: string
+          titulo: string
+        }
+        Update: {
+          atualizado_em?: string
+          categoria?: string
+          comentario_goable?: string
+          config?: Json
+          criado_em?: string
+          descricao?: string
+          id?: string
+          link_id?: string
+          obrigatoria?: boolean
+          ordem?: number
+          prioridade?: string
+          status?: string
+          tipo?: string
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pend_itens_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "pend_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pend_links: {
+        Row: {
+          ativo: boolean
+          criado_em: string
+          expira_em: string | null
+          id: string
+          nome_cliente: string
+          token: string
+          ultimo_acesso_em: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          criado_em?: string
+          expira_em?: string | null
+          id?: string
+          nome_cliente: string
+          token?: string
+          ultimo_acesso_em?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          criado_em?: string
+          expira_em?: string | null
+          id?: string
+          nome_cliente?: string
+          token?: string
+          ultimo_acesso_em?: string | null
+        }
+        Relationships: []
+      }
+      pend_respostas: {
+        Row: {
+          id: string
+          item_id: string
+          respondido_em: string
+          respondido_por_nome: string
+          valor: Json
+        }
+        Insert: {
+          id?: string
+          item_id: string
+          respondido_em?: string
+          respondido_por_nome: string
+          valor: Json
+        }
+        Update: {
+          id?: string
+          item_id?: string
+          respondido_em?: string
+          respondido_por_nome?: string
+          valor?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pend_respostas_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: true
+            referencedRelation: "pend_itens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pend_respostas_hist: {
+        Row: {
+          arquivado_em: string
+          id: string
+          item_id: string
+          respondido_em: string
+          respondido_por_nome: string
+          valor: Json
+        }
+        Insert: {
+          arquivado_em?: string
+          id?: string
+          item_id: string
+          respondido_em: string
+          respondido_por_nome: string
+          valor: Json
+        }
+        Update: {
+          arquivado_em?: string
+          id?: string
+          item_id?: string
+          respondido_em?: string
+          respondido_por_nome?: string
+          valor?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pend_respostas_hist_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "pend_itens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -63,6 +263,40 @@ export type Database = {
         Returns: boolean
       }
       nf_signup_open: { Args: never; Returns: boolean }
+      pend_register_file: {
+        Args: {
+          _autor: string
+          _campo: string
+          _item: string
+          _max: number
+          _mime: string
+          _nome: string
+          _path: string
+          _tamanho: number
+          _token: string
+        }
+        Returns: string
+      }
+      pend_remove_file: {
+        Args: { _file: string; _item: string; _token: string }
+        Returns: string
+      }
+      pend_submit: {
+        Args: { _item: string; _nome: string; _token: string; _valor: Json }
+        Returns: undefined
+      }
+      pend_submit_checked: {
+        Args: {
+          _config: Json
+          _item: string
+          _nome: string
+          _obrigatoria: boolean
+          _tipo: string
+          _token: string
+          _valor: Json
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       nf_papel: "consultorio" | "admin_goable"
