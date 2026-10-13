@@ -70,9 +70,9 @@ export const transicoes: Record<StatusAtendimento, StatusAtendimento[]> = {
   aprovado: ['pago_ok','emitindo','cancelado'],
   emitindo: ['emitido','erro_emissao'],
   erro_emissao: ['aprovado','emitindo','cancelado'],
-  emitido: ['enviado','erro_envio','cancelado'],
-  erro_envio: ['enviado','cancelado'],
-  enviado: ['cancelado'],
+  emitido: ['enviado','erro_envio','pago_ok','cancelado'],
+  erro_envio: ['enviado','pago_ok','cancelado'],
+  enviado: ['pago_ok','cancelado'],
   nao_gera_nota: ['importado'],
   cancelado: [],
 };

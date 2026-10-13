@@ -81,7 +81,7 @@ export const reavaliarPaciente=createServerFn({method:'POST'}).middleware([requi
 export const editarAtendimento=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({atendimento_id:id,valor:z.number().min(0).max(1_000_000),servico_id:id.nullable(),quantidade:z.number().int().min(1).max(20),...op})).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId);
  const antes=okOne(await db.from('nf_atendimentos').select('status,valor,servico_id,quantidade').eq('id',data.atendimento_id).single());
- if(!['importado','cadastro_pendente','aguardando_pagamento','nao_gera_nota'].includes(antes.status))throw new Error('Desfaça o ok de pagamento antes de editar.');
+ if(!['importado','cadastro_pendente','aguardando_pagamento','nao_gera_nota','pago_ok'].includes(antes.status))throw new Error('Este atendimento já foi aprovado e não pode ser editado aqui.');
  const r=await db.from('nf_atendimentos').update({valor:data.valor,servico_id:data.servico_id,quantidade:data.quantidade}).eq('id',data.atendimento_id);
  if(r.error?.code==='23505')throw new Error('Já existe um atendimento igual neste dia para este paciente.');ok(r);
  await auditar(db,data.operador_id,'editar','nf_atendimentos',data.atendimento_id,{valor:Number(antes.valor),servico_id:antes.servico_id,quantidade:antes.quantidade},{valor:data.valor,servico_id:data.servico_id,quantidade:data.quantidade});
