@@ -11,7 +11,7 @@ const s=StyleSheet.create({
  block:{border:'0.75pt solid #cbd5e1',borderRadius:3,padding:8,marginBottom:8},
  blockTitle:{fontSize:8,fontFamily:'Helvetica-Bold',color:'#0f4c4c',marginBottom:4,textTransform:'uppercase'},
  row:{flexDirection:'row',marginBottom:2},label:{width:130,color:'#6b7280'},value:{flex:1},
- watermark:{position:'absolute',top:360,left:-40,width:680,textAlign:'center',fontSize:40,fontFamily:'Helvetica-Bold',color:'#dc2626',opacity:0.16,transform:'rotate(-35deg)'},
+ watermark:{position:'absolute',top:380,left:-120,width:840,textAlign:'center',fontSize:30,fontFamily:'Helvetica-Bold',color:'#dc2626',opacity:0.16,transform:'rotate(-35deg)'},
  footer:{position:'absolute',bottom:20,left:28,right:28,fontSize:7,color:'#9ca3af',textAlign:'center'},
 });
 const brl=(n:number)=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
