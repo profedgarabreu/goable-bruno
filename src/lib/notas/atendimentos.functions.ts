@@ -1,7 +1,7 @@
 import {createServerFn} from '@tanstack/react-start';
 import {z} from 'zod';
 import {requireSupabaseAuth} from '@/integrations/supabase/auth-middleware';
-import {exigirPapel,ok,okList,auditar,bloqueiosDe} from './service.server';
+import {exigirPapel,ok,okOne,okList,auditar,bloqueiosDe} from './service.server';
 import {calcularBloqueios,competenciaDe,type StatusAtendimento} from './rules';
 import {temBloqueioCadastro} from './importacao';
 
@@ -28,7 +28,7 @@ async function mudar(db:Parameters<typeof auditar>[0],atId:string,de:StatusAtend
 export const marcarPago=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({atendimento_id:id,pago:z.boolean(),...op})).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId);
  const {atendimento:a,bloqueios}=await bloqueiosDe(db,data.atendimento_id);
- const full=ok(await db.from('nf_atendimentos').select('forma_pagamento,autorizacao_liberada,paciente:nf_pacientes(regra:nf_regras_especiais(aguarda_autorizacao,ativo))').eq('id',a.id).single());
+ const full=okOne(await db.from('nf_atendimentos').select('forma_pagamento,autorizacao_liberada,paciente:nf_pacientes(regra:nf_regras_especiais(aguarda_autorizacao,ativo))').eq('id',a.id).single());
  if(data.pago){
   if(!full.forma_pagamento)throw new Error('Informe a forma de pagamento antes de dar o ok.');
   if(a.status==='cadastro_pendente'||temBloqueioCadastro(bloqueios))throw new Error('Complete o cadastro antes de dar o ok de pagamento.');
@@ -45,7 +45,7 @@ export const marcarPago=createServerFn({method:'POST'}).middleware([requireSupab
 
 export const atualizarForma=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({atendimento_id:id,forma:forma.nullable(),...op})).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId);
- const a=ok(await db.from('nf_atendimentos').select('status,forma_pagamento').eq('id',data.atendimento_id).single());
+ const a=okOne(await db.from('nf_atendimentos').select('status,forma_pagamento').eq('id',data.atendimento_id).single());
  if(travados.includes(a.status as StatusAtendimento))throw new Error('Atendimento já aprovado: não pode ser alterado aqui.');
  if(!data.forma&&(a.status==='pago_ok'||a.status==='aguardando_autorizacao'))throw new Error('Desfaça o ok de pagamento antes de limpar a forma.');
  ok(await db.from('nf_atendimentos').update({forma_pagamento:data.forma}).eq('id',data.atendimento_id));
@@ -55,7 +55,7 @@ export const atualizarForma=createServerFn({method:'POST'}).middleware([requireS
 
 export const liberarAutorizacao=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({atendimento_id:id,recebida:z.literal(true),...op})).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId);
- const a=ok(await db.from('nf_atendimentos').select('status').eq('id',data.atendimento_id).single());
+ const a=okOne(await db.from('nf_atendimentos').select('status').eq('id',data.atendimento_id).single());
  if(a.status!=='aguardando_autorizacao')throw new Error('Este atendimento não está aguardando autorização.');
  await mudar(db,data.atendimento_id,'aguardando_autorizacao',{status:'pago_ok',autorizacao_liberada:true,liberado_por:data.operador_id??null,liberado_em:new Date().toISOString()},data.operador_id,'liberar_autorizacao');
  return {status:'pago_ok' as const};
@@ -80,7 +80,7 @@ export const reavaliarPaciente=createServerFn({method:'POST'}).middleware([requi
 
 export const editarAtendimento=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({atendimento_id:id,valor:z.number().min(0).max(1_000_000),servico_id:id.nullable(),quantidade:z.number().int().min(1).max(20),...op})).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId);
- const antes=ok(await db.from('nf_atendimentos').select('status,valor,servico_id,quantidade').eq('id',data.atendimento_id).single());
+ const antes=okOne(await db.from('nf_atendimentos').select('status,valor,servico_id,quantidade').eq('id',data.atendimento_id).single());
  if(!['importado','cadastro_pendente','aguardando_pagamento','nao_gera_nota'].includes(antes.status))throw new Error('Desfaça o ok de pagamento antes de editar.');
  const r=await db.from('nf_atendimentos').update({valor:data.valor,servico_id:data.servico_id,quantidade:data.quantidade}).eq('id',data.atendimento_id);
  if(r.error?.code==='23505')throw new Error('Já existe um atendimento igual neste dia para este paciente.');ok(r);
@@ -90,7 +90,7 @@ export const editarAtendimento=createServerFn({method:'POST'}).middleware([requi
 
 export const marcarSemNota=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({atendimento_id:id,...op})).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId);
- const a=ok(await db.from('nf_atendimentos').select('status').eq('id',data.atendimento_id).single());
+ const a=okOne(await db.from('nf_atendimentos').select('status').eq('id',data.atendimento_id).single());
  if(!['importado','cadastro_pendente','aguardando_pagamento','pago_ok','aguardando_autorizacao'].includes(a.status))throw new Error('Não é possível marcar este atendimento como sem nota.');
  await mudar(db,data.atendimento_id,a.status as StatusAtendimento,{status:'nao_gera_nota',convenio:true},data.operador_id,'marcar_sem_nota');
  return {ok:true};
@@ -98,7 +98,7 @@ export const marcarSemNota=createServerFn({method:'POST'}).middleware([requireSu
 
 export const excluirAtendimento=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({atendimento_id:id,...op})).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId);
- const a=ok(await db.from('nf_atendimentos').select('*').eq('id',data.atendimento_id).single());
+ const a=okOne(await db.from('nf_atendimentos').select('*').eq('id',data.atendimento_id).single());
  if(travados.includes(a.status as StatusAtendimento))throw new Error('Atendimentos aprovados não podem ser excluídos.');
  const del=okList(await db.from('nf_atendimentos').delete().eq('id',data.atendimento_id).eq('status',a.status).select('id'));
  if(!del.length)throw new Error('Não foi possível excluir. Atualize e tente novamente.');

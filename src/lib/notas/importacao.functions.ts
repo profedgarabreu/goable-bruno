@@ -1,7 +1,7 @@
 import {createServerFn} from '@tanstack/react-start';
 import {z} from 'zod';
 import {requireSupabaseAuth} from '@/integrations/supabase/auth-middleware';
-import {exigirPapel,ok,okList,auditar} from './service.server';
+import {exigirPapel,ok,okOne,okList,auditar} from './service.server';
 import {calcularBloqueios,competenciaDe,somenteDigitos,validarCPF} from './rules';
 import {casarPaciente,casarServico,casarMedico,normalizarFormaPagamento,ehConvenio,parseValorBR,parseDataBR,marcarDuplicadas,statusInicial,type FormaPagamento} from './importacao';
 import {extrairDoRelatorio} from './relatorio.server';
@@ -59,15 +59,15 @@ export const confirmarImportacao=createServerFn({method:'POST'}).middleware([req
  const criados=new Map<string,string>();let pacientesNovos=0;
  for(const l of data.linhas){if(l.paciente_id||!l.novo_paciente)continue;const k=l.novo_paciente.nome.toLowerCase();if(criados.has(k))continue;
   const cpf=somenteDigitos(l.novo_paciente.cpf);
-  const p=ok(await db.from('nf_pacientes').insert({nome:l.novo_paciente.nome,cpf:cpf&&validarCPF(cpf)?cpf:null,origem:'importacao'}).select('id').single());
+  const p=okOne(await db.from('nf_pacientes').insert({nome:l.novo_paciente.nome,cpf:cpf&&validarCPF(cpf)?cpf:null,origem:'importacao'}).select('id').single());
   criados.set(k,p.id);pacientesNovos++;await auditar(db,data.operador_id,'criar','nf_pacientes',p.id,null,{nome:l.novo_paciente.nome,origem:'importacao'});}
  // "Remember this name": add alias to the chosen service.
- for(const l of data.linhas){if(!l.lembrar_alias||!l.servico_id)continue;const sv=ok(await db.from('nf_servicos').select('aliases_prontmed').eq('id',l.servico_id).single());
+ for(const l of data.linhas){if(!l.lembrar_alias||!l.servico_id)continue;const sv=okOne(await db.from('nf_servicos').select('aliases_prontmed').eq('id',l.servico_id).single());
   if(!sv.aliases_prontmed.some(a=>a.toLowerCase()===l.lembrar_alias!.toLowerCase())){const novo=[...sv.aliases_prontmed,l.lembrar_alias];ok(await db.from('nf_servicos').update({aliases_prontmed:novo}).eq('id',l.servico_id));await auditar(db,data.operador_id,'adicionar_alias','nf_servicos',l.servico_id,{aliases_prontmed:sv.aliases_prontmed},{aliases_prontmed:novo});}}
  const ids=[...new Set(data.linhas.map(l=>l.paciente_id??criados.get(l.novo_paciente?.nome.toLowerCase()??'')).filter(Boolean) as string[])];
  const [pacs,servs,aliqs]=await Promise.all([db.from('nf_pacientes').select('id,cpf,cep,logradouro,numero,municipio_ibge,regra:nf_regras_especiais(nome,aguarda_autorizacao,ativo)').in('id',ids.length?ids:['00000000-0000-0000-0000-000000000000']),db.from('nf_servicos').select('id,parametro_fiscal_id'),db.from('nf_aliquota_mes').select('competencia,aliquota_simples')]);
  const pm=new Map(okList(pacs).map(p=>[p.id,p])),sm=new Map(okList(servs).map(x=>[x.id,x])),am=new Map(okList(aliqs).map(a=>[a.competencia,Number(a.aliquota_simples)]));
- const imp=ok(await db.from('nf_importacoes').insert({data_ref:data.data_ref,origem:data.origem,arquivo_path:data.arquivo_path??null,linhas_lidas:data.linhas_lidas,linhas_novas:0,operador_id:data.operador_id??null}).select('id').single());
+ const imp=okOne(await db.from('nf_importacoes').insert({data_ref:data.data_ref,origem:data.origem,arquivo_path:data.arquivo_path??null,linhas_lidas:data.linhas_lidas,linhas_novas:0,operador_id:data.operador_id??null}).select('id').single());
  const rows=data.linhas.flatMap(l=>{const pid=l.paciente_id??criados.get(l.novo_paciente?.nome.toLowerCase()??'');if(!pid)return [];const p=pm.get(pid);
   const b=calcularBloqueios({atendimento:{data_atendimento:l.data_atendimento,valor:l.valor,convenio:l.convenio,aprovado_em:null},paciente:{cpf:p?.cpf??null,cep:p?.cep??null,logradouro:p?.logradouro??null,numero:p?.numero??null,municipio_ibge:p?.municipio_ibge??null},servico:l.servico_id?{parametro_fiscal_id:sm.get(l.servico_id)?.parametro_fiscal_id??null}:null,aliquotaDoMes:am.get(competenciaDe(l.data_atendimento))??null,regra:p?.regra??null});
   return [{importacao_id:imp.id,data_atendimento:l.data_atendimento,paciente_id:pid,medico_id:l.medico_id,servico_id:l.servico_id,quantidade:l.quantidade,valor:l.valor,forma_pagamento:l.forma_pagamento,convenio:l.convenio,status:statusInicial(l.convenio,b),hash_dedup:''}];});

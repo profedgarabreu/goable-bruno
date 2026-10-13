@@ -28,3 +28,4 @@ export async function bloqueiosDe(db:Db,atendimentoId:string){
  const bloqueios=calcularBloqueios({atendimento:{data_atendimento:a.data_atendimento,valor:Number(a.valor),convenio:a.convenio,aprovado_em:a.aprovado_em,autorizacao_liberada:a.autorizacao_liberada},paciente:{cpf:p?.cpf??null,cep:p?.cep??null,logradouro:p?.logradouro??null,numero:p?.numero??null,municipio_ibge:p?.municipio_ibge??null},servico:a.servico,aliquotaDoMes:aliq?Number(aliq.aliquota_simples):null,regra:p?.regra??null});
  return {atendimento:a as typeof a & {status:StatusAtendimento},bloqueios};
 }
+export function okOne<T>(r:{data:T|null;error:{message:string}|null}):T{if(r.error)throw new Error(r.error.message);if(r.data==null)throw new Error('Registro não encontrado.');return r.data;}
