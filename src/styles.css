@@ -268,3 +268,24 @@
 .import-step.is-done { color:var(--primary); background:var(--secondary); }
 @media(max-width:1200px){ .hoje-contadores { grid-template-columns:repeat(4,minmax(0,1fr)); } .hoje-rodape { left:218px; padding:12px 25px; } }
 @media(max-width:700px){ .hoje-contadores { grid-template-columns:repeat(2,minmax(0,1fr)); } .hoje-rodape { left:0; padding:10px 16px; justify-content:space-between; } }
+/* M4 — emissão */
+.modo-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.modo-card { display:flex; flex-direction:column; gap:6px; text-align:left; padding:14px 16px; border:1px solid var(--border); border-radius:8px; background:var(--card); min-height:44px; transition:border-color .15s; }
+.modo-card:not(:disabled):hover { border-color:var(--primary); }
+.modo-card.is-current { border-color:var(--primary); box-shadow:inset 0 0 0 1px var(--primary); background:var(--success-soft); }
+.modo-card.is-unavailable { background:var(--muted); }
+.modo-card:disabled { cursor:default; }
+.conferencia-grupo td { background:var(--muted); font-size:13px; font-weight:600; color:var(--muted-foreground); padding:8px 16px !important; }
+.capitalize-first::first-letter { text-transform:uppercase; }
+.conferencia-linha { cursor:pointer; }
+.conferencia-linha.is-open td { background:var(--accent); }
+.conferencia-previa td { background:var(--card); padding-top:0 !important; }
+.previa-nota { border:1px solid var(--border); border-radius:8px; padding:14px 18px; margin:4px 0 12px; background:var(--background); }
+.previa-titulo { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--primary); margin-bottom:8px; }
+.previa-nota dl, .resumo-emissao { display:grid; grid-template-columns:200px 1fr; gap:6px 16px; font-size:14px; }
+.previa-nota dt, .resumo-emissao dt { color:var(--muted-foreground); }
+.resumo-emissao { grid-template-columns:120px 1fr; font-size:15px; padding:12px 14px; border:1px solid var(--border); border-radius:8px; }
+.notas-filtros { display:grid; grid-template-columns:150px 150px 170px 190px 150px 1fr; gap:12px; padding:16px 20px; border-bottom:1px solid var(--border); align-items:end; }
+.notas-filtros .search-field { width:100%; }
+@media(max-width:1200px){ .notas-filtros { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:700px){ .modo-grid, .notas-filtros { grid-template-columns:1fr; } .previa-nota dl { grid-template-columns:1fr; } }

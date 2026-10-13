@@ -2,6 +2,8 @@ import {Link,useNavigate,useRouter,useRouterState} from '@tanstack/react-router'
 import {useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {getBadge} from '@/lib/pendencias/functions';
+import {useServerFn} from '@tanstack/react-start';
+import {statusEmissor} from '@/lib/notas/emissao.functions';
 import {CalendarDays,Upload,ClipboardCheck,FileText,Users,ChartNoAxesCombined,Settings,LogOut,FlaskConical,Menu,ArrowRight,ChevronDown,ShieldCheck,Sparkles} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {Brand} from './brand';
@@ -10,7 +12,16 @@ import {supabase} from '@/integrations/supabase/client';
 import {saoPauloDate} from '@/lib/clinic';
 import {AliquotaBanner} from './aliquota-banner';
 const nav = [{to:'/',label:'Hoje',icon:CalendarDays},{to:'/importar',label:'Importar',icon:Upload},{to:'/conferencia',label:'Conferência',icon:ClipboardCheck},{to:'/notas',label:'Notas emitidas',icon:FileText},{to:'/pacientes',label:'Pacientes',icon:Users},{to:'/historico',label:'Histórico',icon:ChartNoAxesCombined},{to:'/pendencias',label:'Pendências',icon:ClipboardCheck},{to:'/configuracoes',label:'Configurações',icon:Settings}] as const;
-export function DemoBanner() { return <div className="demo-banner"><FlaskConical size={13}/><strong>AMBIENTE DE DEMONSTRAÇÃO</strong><span>— notas sem valor fiscal</span></div>; }
+/** Top strip reflects the issuer mode: mock → demo, homologação → test environment, produção → none. */
+export function DemoBanner() {
+ const fn=useServerFn(statusEmissor);
+ const {data}=useQuery({queryKey:['status-emissor'],queryFn:()=>fn(),staleTime:60000});
+ const modo=data?.modo??'mock';
+ if(modo==='producao')return null;
+ return modo==='homologacao'
+  ?<div className="demo-banner"><FlaskConical size={13}/><strong>HOMOLOGAÇÃO</strong><span>— ambiente de testes da Receita</span></div>
+  :<div className="demo-banner"><FlaskConical size={13}/><strong>DEMONSTRAÇÃO</strong><span>— notas sem valor fiscal</span></div>;
+}
 export function AppShell({children}:{children:React.ReactNode}) {
  const {operator,choose}=useOperator();const navigate=useNavigate();const router=useRouter();const {queryClient}=router.options.context;const [open,setOpen]=useState(false);const [leaving,setLeaving]=useState(false);
  const pathname=useRouterState({select:s=>s.location.pathname});

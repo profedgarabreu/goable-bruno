@@ -27,3 +27,11 @@ Confirmation-email delivery to a real mailbox is not verified; confirmation rema
 - [x] Completar pela ficha (IA) sem guardar o texto
 - [x] Faixa de alíquota em todas as telas internas
 - [x] Textos de envio em tabela própria
+
+## M4 — Conferência + Emissão
+- [x] Grants anon zerados e default privileges do papel de migração ajustados
+- [x] Modo do emissor (mock/homologação/produção) com bloqueios e faixa no topo
+- [x] montarNota, adapters Mock (DANFSe/XML) e Focus, webhook
+- [x] Conferência, aprovação idempotente, tela do lote com progresso e polling
+- [x] Notas emitidas: PDF/XML assinados, cancelar, reemitir corrigida, emitir avulsa
+- [ ] Homologação/produção reais — aguardando tokens da Focus NFe e segredo do webhook

@@ -260,6 +260,7 @@ export type Database = {
           cnpj: string | null
           created_at: string
           email_remetente: string | null
+          emissor_modo: Database["public"]["Enums"]["nf_ambiente"]
           id: boolean
           inscricao_municipal: string | null
           municipio_ibge: string
@@ -276,6 +277,7 @@ export type Database = {
           cnpj?: string | null
           created_at?: string
           email_remetente?: string | null
+          emissor_modo?: Database["public"]["Enums"]["nf_ambiente"]
           id?: boolean
           inscricao_municipal?: string | null
           municipio_ibge: string
@@ -292,6 +294,7 @@ export type Database = {
           cnpj?: string | null
           created_at?: string
           email_remetente?: string | null
+          emissor_modo?: Database["public"]["Enums"]["nf_ambiente"]
           id?: boolean
           inscricao_municipal?: string | null
           municipio_ibge?: string
@@ -403,6 +406,7 @@ export type Database = {
       nf_lotes: {
         Row: {
           aprovado_por: string | null
+          chave_idempotencia: string | null
           criado_em: string
           id: string
           status: string
@@ -412,6 +416,7 @@ export type Database = {
         }
         Insert: {
           aprovado_por?: string | null
+          chave_idempotencia?: string | null
           criado_em?: string
           id?: string
           status?: string
@@ -421,6 +426,7 @@ export type Database = {
         }
         Update: {
           aprovado_por?: string | null
+          chave_idempotencia?: string | null
           criado_em?: string
           id?: string
           status?: string
@@ -505,6 +511,7 @@ export type Database = {
           created_at: string
           descricao_usada: string | null
           emitida_em: string | null
+          enviada_ao_emissor_em: string | null
           id: string
           lote_id: string | null
           mensagem_erro: string | null
@@ -517,6 +524,7 @@ export type Database = {
           resposta: Json | null
           status: Database["public"]["Enums"]["nf_status_nota"]
           substituida_por: string | null
+          tentativas: number
           updated_at: string
           xml_path: string | null
         }
@@ -529,6 +537,7 @@ export type Database = {
           created_at?: string
           descricao_usada?: string | null
           emitida_em?: string | null
+          enviada_ao_emissor_em?: string | null
           id?: string
           lote_id?: string | null
           mensagem_erro?: string | null
@@ -541,6 +550,7 @@ export type Database = {
           resposta?: Json | null
           status?: Database["public"]["Enums"]["nf_status_nota"]
           substituida_por?: string | null
+          tentativas?: number
           updated_at?: string
           xml_path?: string | null
         }
@@ -553,6 +563,7 @@ export type Database = {
           created_at?: string
           descricao_usada?: string | null
           emitida_em?: string | null
+          enviada_ao_emissor_em?: string | null
           id?: string
           lote_id?: string | null
           mensagem_erro?: string | null
@@ -565,6 +576,7 @@ export type Database = {
           resposta?: Json | null
           status?: Database["public"]["Enums"]["nf_status_nota"]
           substituida_por?: string | null
+          tentativas?: number
           updated_at?: string
           xml_path?: string | null
         }
@@ -1147,6 +1159,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      nf_criar_lote: {
+        Args: {
+          _ambiente: Database["public"]["Enums"]["nf_ambiente"]
+          _chave: string
+          _itens: Json
+          _operador: string
+        }
+        Returns: string
+      }
       nf_has_role: {
         Args: {
           _role: Database["public"]["Enums"]["nf_papel"]
@@ -1155,6 +1176,7 @@ export type Database = {
         Returns: boolean
       }
       nf_hoje: { Args: never; Returns: string }
+      nf_mock_proximo_numero: { Args: never; Returns: number }
       nf_parametro_nova_versao: {
         Args: { _dados: Json; _id: string }
         Returns: string

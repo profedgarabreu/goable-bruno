@@ -12,6 +12,7 @@ import {regimes} from '@/lib/notas/labels';
 import {EditDrawer,Field,maskCNPJ,maskFone,d} from '@/components/clinic/form-kit';
 import {useSalvar,dataBR,type Painel} from './shared';
 import {saoPauloDate} from '@/lib/clinic';
+import {ModoEmissor} from './modo-emissor';
 
 type EF={razao_social:string;cnpj:string;inscricao_municipal:string;municipio_nome:string;municipio_ibge:string;uf:string;regime:string;email_remetente:string;whatsapp_numero:string};
 const vazioEF:EF={razao_social:'',cnpj:'',inscricao_municipal:'',municipio_nome:'',municipio_ibge:'',uf:'',regime:'',email_remetente:'',whatsapp_numero:''};
@@ -33,10 +34,11 @@ export function EmitenteTab({p}:{p:Painel}){
   <div className={`status-card ${pronto?'is-ready':'is-blocked'}`}>
    <div className="flex flex-wrap items-start gap-3">{pronto?<ShieldCheck className="text-success" size={26}/>:<ShieldAlert className="text-destructive" size={26}/>}
     <div className="flex-1 min-w-[220px]"><h2 className={`text-lg font-semibold ${pronto?'':'text-destructive'}`}>{pronto?'Pronto para produção':'Produção bloqueada'}</h2>
-     <ul className="mt-2 grid gap-1 text-[15px]">{faltas.map(x=><li key={x}>• {x}</li>)}<li className="text-muted-foreground">• Certificado digital: configurado no provedor de emissão — M4</li></ul></div>
+     <ul className="mt-2 grid gap-1 text-[15px]">{faltas.map(x=><li key={x}>• {x}</li>)}<li className="text-muted-foreground">• Certificado digital: configurado no provedor de emissão (Focus NFe)</li></ul></div>
     {admin&&<Button variant="outline" onClick={()=>{setV({contador:e.parametros_validados_por??'',data:saoPauloDate(),ok:false});setVal(true);}}><BadgeCheck/>Registrar validação do contador</Button>}
    </div>
   </div>
+  <ModoEmissor/>
   <div className="flex items-center justify-between"><h2 className="text-lg font-semibold">Dados de quem emite a nota</h2>{admin&&<Button variant="action" onClick={abrir}><Pencil/>Editar emitente</Button>}</div>
   <div className="ficha">{linhas.map(([l,x])=><Fragment key={l}><div className="ficha-label">{l}</div><div>{x}</div></Fragment>)}</div>
   {!admin&&<p className="text-sm text-muted-foreground">Somente a administração Goable altera os dados do emitente.</p>}
