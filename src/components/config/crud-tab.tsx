@@ -26,7 +26,7 @@ export function CrudTab({tabela,titulo,linhas,colunas,podeEditar,extra,aviso}:{t
   <DataTable head={[...visiveis.map(c=>c.label),...(extra?[extra.label]:[])]} empty={!linhas.length}>{linhas.map(l=><tr key={l.id} className={podeEditar?'is-clickable':''} onClick={()=>podeEditar&&abrir(l)}>{visiveis.map(c=><td key={c.key}>{mostrar(c,l[c.key])}</td>)}{extra&&<td>{extra.render(l)}</td>}</tr>)}</DataTable>
   <EditDrawer open={open} onOpenChange={setOpen} title={atual?`Editar ${titulo.toLowerCase()}`:`Novo ${titulo.toLowerCase()}`} onSave={save} saving={busy} canSave={Object.values(erros).every(e=>!e)}>
    {colunas.map(c=>c.tipo==='bool'?<label key={c.key} className="flex items-center justify-between text-[15px]">{c.label}<Switch checked={!!f[c.key]} onCheckedChange={x=>setF({...f,[c.key]:x})}/></label>
-    :<Field key={c.key} label={c.label} error={String(f[c.key]??'')?erros[c.key]:null}>{c.tipo==='longo'?<Textarea rows={3} value={String(f[c.key]??'')} onChange={x=>setF({...f,[c.key]:x.target.value})}/>:<Input inputMode={c.tipo==='numero'||c.tipo==='cnpj'?'numeric':undefined} value={String(f[c.key]??'')} onChange={x=>setF({...f,[c.key]:c.tipo==='cnpj'?maskCNPJ(x.target.value):c.tipo==='numero'?x.target.value.replace(/\D/g,''):x.target.value})}/>}</Field>)}
+    :<Field key={c.key} label={c.label} error={String(f[c.key]??'')?(erros[c.key]??null):null}>{c.tipo==='longo'?<Textarea rows={3} value={String(f[c.key]??'')} onChange={x=>setF({...f,[c.key]:x.target.value})}/>:<Input inputMode={c.tipo==='numero'||c.tipo==='cnpj'?'numeric':undefined} value={String(f[c.key]??'')} onChange={x=>setF({...f,[c.key]:c.tipo==='cnpj'?maskCNPJ(x.target.value):c.tipo==='numero'?x.target.value.replace(/\D/g,''):x.target.value})}/>}</Field>)}
   </EditDrawer>
  </div>;
 }

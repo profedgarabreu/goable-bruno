@@ -13,18 +13,20 @@ import {EditDrawer,Field,maskCNPJ,maskFone,d} from '@/components/clinic/form-kit
 import {useSalvar,dataBR,type Painel} from './shared';
 import {saoPauloDate} from '@/lib/clinic';
 
+type EF={razao_social:string;cnpj:string;inscricao_municipal:string;municipio_nome:string;municipio_ibge:string;uf:string;regime:string;email_remetente:string;whatsapp_numero:string};
+const vazioEF:EF={razao_social:'',cnpj:'',inscricao_municipal:'',municipio_nome:'',municipio_ibge:'',uf:'',regime:'',email_remetente:'',whatsapp_numero:''};
 export function EmitenteTab({p}:{p:Painel}){
  const e=p.emitente;const admin=p.papel==='admin_goable';const {run,operatorId}=useSalvar();
  const salvar=useServerFn(salvarEmitente);const validar=useServerFn(registrarValidacaoContador);
  const [edit,setEdit]=useState(false);const [val,setVal]=useState(false);const [busy,setBusy]=useState(false);
- const [f,setF]=useState<Record<string,string>>({});
+ const [f,setF]=useState<EF>(vazioEF);
  const [v,setV]=useState({contador:'',data:saoPauloDate(),ok:false});
  if(!e)return <p>Emitente não cadastrado.</p>;
  const faltas=[!e.cnpj&&'CNPJ do consultório não informado',!e.parametros_validados_em&&'Validação do contador não registrada'].filter(Boolean) as string[];
  const pronto=faltas.length===0;
  function abrir(){setF({razao_social:e!.razao_social,cnpj:maskCNPJ(e!.cnpj??''),inscricao_municipal:e!.inscricao_municipal??'',municipio_nome:e!.municipio_nome,municipio_ibge:e!.municipio_ibge,uf:e!.uf,regime:e!.regime,email_remetente:e!.email_remetente??'',whatsapp_numero:maskFone(e!.whatsapp_numero??'')});setEdit(true);}
  const cnpjErr=f.cnpj&&!validarCNPJ(f.cnpj)?'CNPJ inválido — confira os números.':null;
- async function save(){setBusy(true);const r=await run(()=>salvar({data:{dados:{...f,razao_social:f.razao_social??'',municipio_ibge:f.municipio_ibge??'',municipio_nome:f.municipio_nome??'',uf:(f.uf??'').toUpperCase(),regime:f.regime??''},operador_id:operatorId}}),'Dados do emitente salvos.');setBusy(false);if(r)setEdit(false);}
+ async function save(){setBusy(true);const r=await run(()=>salvar({data:{dados:{...f,uf:f.uf.toUpperCase()},operador_id:operatorId}}),'Dados do emitente salvos.');setBusy(false);if(r)setEdit(false);}
  async function saveVal(){setBusy(true);const r=await run(()=>validar({data:{contador:v.contador,data:v.data,conferido:true,operador_id:operatorId}}),'Validação do contador registrada.');setBusy(false);if(r)setVal(false);}
  const linhas:[string,string][]=[['Razão social',e.razao_social],['CNPJ',e.cnpj?formatarCNPJ(e.cnpj):'Não informado'],['Inscrição municipal',e.inscricao_municipal||'Não informada'],['Município',`${e.municipio_nome}/${e.uf} (IBGE ${e.municipio_ibge})`],['Regime',regimes[e.regime]??e.regime],['E-mail remetente',e.email_remetente||'Não informado'],['WhatsApp',e.whatsapp_numero?maskFone(e.whatsapp_numero):'Não informado'],['Validação do contador',e.parametros_validados_em?`${e.parametros_validados_por} em ${dataBR(e.parametros_validados_em)}`:'Pendente']];
  return <div className="grid gap-5">

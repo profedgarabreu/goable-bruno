@@ -24,7 +24,7 @@ export function FichaDialog({atual,onClose,onAplicar}:{atual:FormPaciente;onClos
    const e:Partial<FormPaciente>={};const avisosExtra=[...av];
    if(ficha.nome)e.nome=ficha.nome;if(ficha.cpf)e.cpf=maskCPF(ficha.cpf);if(ficha.celular)e.celular=maskFone(ficha.celular);if(ficha.email)e.email=ficha.email;
    if(ficha.logradouro)e.logradouro=ficha.logradouro;if(ficha.numero)e.numero=ficha.numero;if(ficha.complemento)e.complemento=ficha.complemento;if(ficha.bairro)e.bairro=ficha.bairro;if(ficha.municipio_nome)e.municipio_nome=ficha.municipio_nome;if(ficha.uf)e.uf=ficha.uf;
-   if(ficha.cep){e.cep=maskCEP(ficha.cep);const c=await buscarCep(ficha.cep);if('erro' in c)avisosExtra.push(`CEP da ficha: ${c.erro}`);else{e.municipio_ibge=c.municipio_ibge;e.municipio_nome=c.municipio_nome||e.municipio_nome;e.uf=c.uf||e.uf;if(!e.bairro&&c.bairro)e.bairro=c.bairro;if(!e.logradouro&&c.logradouro)e.logradouro=c.logradouro;}}
+   if(ficha.cep){e.cep=maskCEP(ficha.cep);const c=await buscarCep(ficha.cep);if('erro' in c)avisosExtra.push(`CEP da ficha: ${c.erro}`);else{e.municipio_ibge=c.municipio_ibge;if(c.municipio_nome)e.municipio_nome=c.municipio_nome;if(c.uf)e.uf=c.uf;if(!e.bairro&&c.bairro)e.bairro=c.bairro;if(!e.logradouro&&c.logradouro)e.logradouro=c.logradouro;}}
    setExtraido(e);setNasc(ficha.data_nascimento);setAvisos(avisosExtra);
    setMarcados(new Set(Object.keys(e).filter(k=>e[k as keyof FormPaciente]&&e[k as keyof FormPaciente]!==atual[k as keyof FormPaciente]&&!(k==='cpf'&&!validarCPF(e.cpf!)))));
    setTexto('');

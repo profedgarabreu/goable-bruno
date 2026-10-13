@@ -31,7 +31,7 @@ export function ParametrosTab({p}:{p:Painel}){
   <h3 className="text-base font-semibold mt-2">Histórico de versões</h3>
   <DataTable head={['Versão','Vigente desde','Criada em','Quem','Situação']}>{historico.map(h=><tr key={h.id}><td>v{h.versao}</td><td>{new Date(`${h.vigente_desde}T12:00`).toLocaleDateString('pt-BR')}</td><td>{dataBR(h.created_at)}</td><td>{h.autor}</td><td>{h.ativo?<Pill tone="success">Ativa</Pill>:<Pill tone="muted">Inativa</Pill>}</td></tr>)}</DataTable>
   <EditDrawer open={open} onOpenChange={setOpen} title={`Nova versão (v${ativo.versao+1})`} description="A versão atual fica guardada no histórico. Notas já emitidas continuam ligadas à versão usada." onSave={save} saving={busy}>
-   <Field label="Vigente desde"><Input type="date" value={String(f.vigente_desde??'')} onChange={x=>setF({...f,vigente_desde:x.target.value})}/></Field>
+   <Field label="Vigente desde"><Input type="date" value={String(f['vigente_desde']??'')} onChange={x=>setF({...f,vigente_desde:x.target.value})}/></Field>
    {camposParametro.map(c=>c.tipo==='bool'?<label key={c.key} className="flex items-center justify-between gap-3 text-[15px]">{c.label}<Switch checked={!!f[c.key]} onCheckedChange={x=>setF({...f,[c.key]:x})}/></label>:<Field key={c.key} label={c.label} hint={rotuloCodigo(c.key,f[c.key])}><Input value={String(f[c.key]??'')} onChange={x=>setF({...f,[c.key]:x.target.value})}/></Field>)}
   </EditDrawer>
  </div>;
