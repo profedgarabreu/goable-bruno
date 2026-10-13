@@ -8,7 +8,19 @@ export const maskCPF=(v:string)=>d(v).slice(0,11).replace(/(\d{3})(\d)/,'$1.$2')
 export const maskCNPJ=(v:string)=>d(v).slice(0,14).replace(/(\d{2})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1/$2').replace(/(\d{4})(\d{1,2})$/,'$1-$2');
 export const maskCEP=(v:string)=>d(v).slice(0,8).replace(/(\d{5})(\d)/,'$1-$2');
 export function maskFone(v:string){const x=d(v).slice(0,11);if(x.length<=2)return x;if(x.length<=6)return `(${x.slice(0,2)}) ${x.slice(2)}`;if(x.length<=10)return `(${x.slice(0,2)}) ${x.slice(2,6)}-${x.slice(6)}`;return `(${x.slice(0,2)}) ${x.slice(2,7)}-${x.slice(7)}`;}
-export function erroAmigavel(e:unknown){const m=e instanceof Error?e.message:String(e);try{const j=JSON.parse(m);if(Array.isArray(j))return j.map((x:{message?:string})=>x.message).filter(Boolean).join(' ');}catch{/* plain */}return m||'Não foi possível salvar. Tente novamente.';}
+const TECNICO=/violates|constraint|duplicate key|PGRST|JWT|permission denied|row-level security|fetch|network|TypeError|undefined|null value|syntax|relation |column |status code|ECONN|timeout|Unexpected token|\b5\d\d\b/i;
+/** Turns any error into plain Portuguese for the user; technical details only go to the console. */
+export function erroAmigavel(e:unknown){
+ const m=e instanceof Error?e.message:String(e??'');
+ try{const j=JSON.parse(m);if(Array.isArray(j))return j.map((x:{message?:string})=>x.message).filter(Boolean).join(' ');}catch{/* plain */}
+ if(!m)return 'Não foi possível concluir. Tente novamente.';
+ if(TECNICO.test(m)){console.error('[detalhe técnico]',e);
+  if(/duplicate key|unique/i.test(m))return 'Esse registro já existe.';
+  if(/permission denied|row-level security|JWT/i.test(m))return 'Você não tem permissão para fazer isso, ou sua sessão expirou. Entre novamente.';
+  if(/fetch|network|ECONN|timeout/i.test(m))return 'Sem conexão com o servidor. Confira a internet e tente novamente.';
+  return 'Algo deu errado. Tente novamente; se continuar, avise a Goable.';}
+ return m;
+}
 
 export function Field({label,hint,error,children,className=''}:{label:string;hint?:ReactNode;error?:string|null;children:ReactNode;className?:string}){
  return <div className={`grid gap-1.5 ${className}`}><label className="grid gap-1.5"><span className="text-sm font-medium">{label}</span>{children}</label>{error?<p className="text-sm text-destructive">{error}</p>:hint?<p className="text-xs text-muted-foreground">{hint}</p>:null}</div>;
