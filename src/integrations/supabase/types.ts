@@ -206,6 +206,24 @@ export type Database = {
           },
         ]
       }
+      nf_convites_acesso: {
+        Row: {
+          criado_por: string
+          email: string
+          expira_em: string
+        }
+        Insert: {
+          criado_por: string
+          email: string
+          expira_em?: string
+        }
+        Update: {
+          criado_por?: string
+          email?: string
+          expira_em?: string
+        }
+        Relationships: []
+      }
       nf_emitente: {
         Row: {
           cnpj: string | null
