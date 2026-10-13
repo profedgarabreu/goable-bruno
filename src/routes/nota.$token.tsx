@@ -32,7 +32,7 @@ function NotaPaciente(){
  return <Shell>
   <h1>Olá, {info.primeiroNome}.</h1><p>Sua nota fiscal do atendimento de {data} está pronta.</p>
   {estado==='liberado'&&url?<><a href={url} className="nota-baixar"><Download size={20}/>Baixar nota (PDF)</a><p className="nota-ajuda">O botão vale por 5 minutos. Se expirar, recarregue a página.</p></>:
-  <form onSubmit={confirmar} className="nota-form"><label htmlFor="dig"><ShieldCheck size={18}/>Para sua segurança, digite os <strong>3 primeiros dígitos do seu CPF</strong>.</label>
+  <form onSubmit={confirmar} className="nota-form"><label htmlFor="dig"><ShieldCheck size={18} className="mt-1 shrink-0"/><span>Para sua segurança, digite os <strong>3 primeiros dígitos do seu CPF</strong>.</span></label>
    <Input id="dig" inputMode="numeric" autoComplete="off" maxLength={3} value={dig} onChange={e=>setDig(e.target.value.replace(/\D/g,''))} className="nota-digitos" aria-describedby="nota-msg"/>
    {msg&&<p id="nota-msg" className="nota-msg" role="alert">{msg}</p>}
    <Button type="submit" variant="action" size="lg" className="h-12 text-base" disabled={dig.length!==3||busy}>{busy&&<Loader2 className="animate-spin"/>}Confirmar</Button></form>}
