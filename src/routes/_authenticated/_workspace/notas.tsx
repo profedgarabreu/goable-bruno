@@ -1,4 +1,5 @@
 import {createFileRoute,Link,useNavigate} from '@tanstack/react-router';
+import {TableSkeleton} from '@/components/clinic/table-skeleton';
 import {useMemo,useState} from 'react';
 import {useQuery,useQueryClient} from '@tanstack/react-query';
 import {useServerFn} from '@tanstack/react-start';
@@ -60,7 +61,7 @@ function NotasPage(){
    <Field label="Buscar" className="notas-busca"><div className="search-field"><Search size={14}/><Input aria-label="Buscar nota" placeholder="Paciente, CPF ou número" value={busca} onChange={e=>setBusca(e.target.value)}/></div></Field>
   </div>
    <div className="table-scroll"><table className="appointments-table"><thead><tr><th>Número</th><th>Data</th><th>Paciente</th><th>Serviço</th><th>Valor</th><th>Nota</th><th>Envio</th><th aria-label="Ações"/></tr></thead><tbody>
-    {isLoading&&<tr><td colSpan={8} className="text-center text-muted-foreground"><Loader2 className="inline animate-spin"/> Carregando…</td></tr>}
+    {isLoading&&<TableSkeleton emTabela colunas={8}/>}
     {!isLoading&&!visiveis.length&&<tr><td colSpan={8} className="py-12 text-center text-muted-foreground">Nenhuma nota neste período. As notas aparecem aqui depois de <Link to="/conferencia" className="font-semibold text-primary underline">aprovadas na conferência</Link>.</td></tr>}
     {visiveis.map(n=>{const st=notaStatusUI[n.status as StatusNota];const pac=n.atendimento?.paciente;
      return <tr key={n.id}><td className="font-medium">{n.numero??'—'}{n.ambiente==='mock'&&<div className="text-[11px] text-muted-foreground">demonstração</div>}</td>

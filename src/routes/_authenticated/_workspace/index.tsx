@@ -1,4 +1,5 @@
 import {createFileRoute,Link,useNavigate} from '@tanstack/react-router';
+import {TableSkeleton} from '@/components/clinic/table-skeleton';
 import {useMemo,useState} from 'react';
 import {useQuery,useQueryClient} from '@tanstack/react-query';
 import {useServerFn} from '@tanstack/react-start';
@@ -58,7 +59,7 @@ function Today(){
   <section className="hoje-contadores" aria-label="Resumo do dia">{categoriasHoje.map(c=><button key={c.key} type="button" className={`hoje-contador ${cat===c.key?'is-active':''}`} aria-pressed={cat===c.key} onClick={()=>setCat(cat===c.key?null:c.key)}><span>{c.label}</span><strong>{String(contagem[c.key]??0).padStart(2,'0')}</strong></button>)}</section>
   <section className="table-section"><div className="table-toolbar"><h2>Atendimentos <span className="count-pill">{visiveis.length}</span>{cat&&<Button variant="link" className="ml-2 h-auto p-0" onClick={()=>setCat(null)}>limpar filtro</Button>}</h2><div className="table-tools"><div className="search-field"><Search size={14}/><Input aria-label="Buscar paciente" placeholder="Buscar por nome ou CPF..." value={busca} onChange={e=>setBusca(e.target.value)}/></div></div></div>
    <div className="table-scroll"><table className="appointments-table" onKeyDown={teclado}><thead><tr><th>Data</th><th>Paciente</th><th>Serviço / médico</th><th>Valor</th><th>Pagamento</th><th className="paid-cell">Pago</th><th>Status</th><th aria-label="Ações"/></tr></thead><tbody>
-    {isLoading&&<tr><td colSpan={8} className="text-center text-muted-foreground"><Loader2 className="inline animate-spin"/> Carregando…</td></tr>}
+    {isLoading&&<TableSkeleton emTabela colunas={8}/>}
     {visiveis.map(l=>{const st=statusUI[l.status as StatusAtendimento];const travado=!['importado','cadastro_pendente','aguardando_pagamento','pago_ok','aguardando_autorizacao','nao_gera_nota'].includes(l.status);const pagoMarcado=l.status==='pago_ok'||l.status==='aguardando_autorizacao'||travado&&!!l.pago_ok_em;const podePagar=['aguardando_pagamento','importado','pago_ok','aguardando_autorizacao'].includes(l.status);
      return <tr key={l.id} aria-busy={ocupado===l.id} tabIndex={0} data-linha={l.id} className="focus:outline-2 focus:outline-primary focus:-outline-offset-2">
       <td className="whitespace-nowrap text-muted-foreground">{new Date(`${l.data_atendimento}T12:00`).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</td>

@@ -1,4 +1,5 @@
 import {createFileRoute,Link} from '@tanstack/react-router';
+import {TableSkeleton} from '@/components/clinic/table-skeleton';
 import {useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {useServerFn} from '@tanstack/react-start';
@@ -81,7 +82,7 @@ function Historico(){
    </div>
   </div>
 
-  {isLoading&&<div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="animate-spin"/>Carregando…</div>}
+  {isLoading&&<TableSkeleton colunas={5}/>}
   {error&&<p className="text-destructive">Não foi possível carregar o histórico.</p>}
   {data&&s&&<>
    {data.pendentes>0&&<div className="mb-5 flex items-center gap-2 rounded-lg border border-border bg-muted px-4 py-3 text-sm"><AlertTriangle size={16} className="text-action"/>Há {data.pendentes} atendimento{data.pendentes===1?'':'s'} pago{data.pendentes===1?'':'s'} sem nota neste mês. <Link to="/conferencia" className="font-semibold text-primary underline">Ir para a conferência</Link></div>}
