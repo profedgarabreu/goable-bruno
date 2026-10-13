@@ -1,24 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
-
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
-export const Route = createFileRoute("/")({
-  component: Index,
-});
-
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
+import {createFileRoute,Link} from '@tanstack/react-router';
+import {useState} from 'react';
+import {Upload,CalendarDays,Clock3,ClipboardCheck,FileText,Send,ArrowRight,AlertCircle,Search,CheckCircle2,Minus,MoreHorizontal,ShieldCheck,Wallet,CreditCard,Banknote,ArrowDownToLine} from 'lucide-react';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {useOperator} from '@/components/clinic/operator-context';
+import {demoAppointments,statusLabels,maskCpf,money,pageHead,saoPauloDate} from '@/lib/clinic';
+export const Route=createFileRoute('/_authenticated/_workspace/')({head:()=>pageHead('Hoje','Atendimentos do dia e acompanhamento das notas fiscais do consultório BNaves.'),component:Today});
+const metrics=[{label:'Importados',number:8,note:'Atendimentos do dia',icon:ArrowDownToLine,tone:'info'},{label:'Pendentes',number:3,note:'Precisam de atenção',icon:Clock3,tone:'warning'},{label:'Prontos',number:1,note:'Para a conferência',icon:ClipboardCheck,tone:'success'},{label:'Emitidas',number:2,note:'Notas geradas',icon:FileText,tone:'info'},{label:'Enviadas',number:1,note:'Entregue ao paciente',icon:Send,tone:'success'}];
+function Today(){const {operator}=useOperator();const [date,setDate]=useState(()=>saoPauloDate());const [search,setSearch]=useState('');const [filter,setFilter]=useState('todos');const rows=demoAppointments.filter(row=>(row.name.toLocaleLowerCase('pt-BR').includes(search.toLocaleLowerCase('pt-BR'))||row.cpf.includes(search.replace(/\D/g,''))&&/\d/.test(search))&&(filter==='todos'||row.status===filter));const month=new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});return <><div className="page-heading"><div><div className="title-eyebrow">SUA ROTINA, MAIS TRANQUILA</div><h1>Hoje</h1><p>Olá, {operator}. Vamos cuidar das notas do dia?</p></div><div className="heading-actions"><label className="date-picker"><CalendarDays size={16}/><input type="date" aria-label="Data dos atendimentos" value={date} onChange={e=>{if(e.target.value)setDate(e.target.value);}}/></label><Button variant="action" size="lg" asChild><Link to="/importar"><Upload/> Importar atendimentos</Link></Button></div></div><section className="metrics" aria-label="Resumo do dia">{metrics.map(({label,number,note,icon:Icon,tone})=><article className="metric" key={label}><div className="metric-top"><span>{label}</span><span className={`metric-icon tone-${tone}`}><Icon size={15}/></span></div><div className="metric-number">{number.toString().padStart(2,'0')}</div><div className="metric-note">{note}</div></article>)}</section><div className="fiscal-alert"><AlertCircle size={19} className="text-action"/><div><strong>Alíquota do Simples ainda não informada</strong><p>Informe a alíquota do Simples de {month} para liberar as emissões.</p></div><Link to="/configuracoes">Informar alíquota <ArrowRight size={14}/></Link></div><section className="table-section"><div className="table-toolbar"><h2>Atendimentos do dia <span className="count-pill">8</span></h2><div className="table-tools"><div className="search-field"><Search size={14}/><Input aria-label="Buscar paciente" placeholder="Buscar paciente..." value={search} onChange={e=>setSearch(e.target.value)}/></div><select className="status-filter" aria-label="Filtrar status" value={filter} onChange={e=>setFilter(e.target.value)}><option value="todos">Todos os status</option>{Object.entries(statusLabels).map(([value,{label}])=><option key={value} value={value}>{label}</option>)}</select></div></div><div className="table-scroll"><table className="appointments-table"><thead><tr><th>Paciente</th><th>Serviço / médico</th><th>Valor</th><th>Pagamento</th><th className="paid-cell">Pago</th><th>Status</th><th aria-label="Detalhes"/></tr></thead><tbody>{rows.map(row=>{const status=statusLabels[row.status];return <tr key={row.name}><td><div className="patient-cell"><span className="patient-avatar">{row.name.split(' ').slice(0,2).map(n=>n[0]).join('')}</span><div><div className="patient-name">{row.name}</div><div className="patient-cpf">{maskCpf(row.cpf)}</div></div></div></td><td><div className="service-name">{row.service}</div><div className="doctor-name">{row.doctor}</div></td><td className="font-medium">{row.value?money(row.value):'—'}</td><td><span className="payment">{row.payment==='Pix'?<Wallet size={14}/>:row.payment==='Dinheiro'?<Banknote size={14}/>:['Crédito','Débito'].includes(row.payment)?<CreditCard size={14}/>:null}{row.payment}</span></td><td className="paid-cell">{row.paid?<CheckCircle2 size={18} className="paid-icon" aria-label="Pagamento confirmado"/>:<Minus size={16} className="mx-auto text-muted-foreground" aria-label="Pagamento não confirmado"/>}</td><td><span className={`status-badge tone-${status.tone}`}><span className="status-dot"/>{status.label}</span></td><td><Button variant="ghost" size="icon" aria-label={`Cadastro de ${row.name}`} title="Pacientes" asChild><Link to="/pacientes"><MoreHorizontal/></Link></Button></td></tr>;})}{rows.length===0&&<tr><td colSpan={7} className="text-center text-muted-foreground">Nenhum atendimento encontrado.</td></tr>}</tbody></table></div><div className="table-footer"><span>{rows.length} de 8 atendimentos <span className="mx-2">·</span> Dados fictícios para demonstração</span><span>Total particular <strong className="total-value">{money(demoAppointments.reduce((s,r)=>s+r.value,0))}</strong></span></div></section><div className="bottom-note"><ShieldCheck size={13}/> Nenhuma nota é emitida sem a sua conferência e aprovação.</div></>;}
