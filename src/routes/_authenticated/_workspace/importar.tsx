@@ -144,7 +144,8 @@ function Passo2({previa,brutas,escolhas,setEscolhas,origem,arquivo,dataRef,passo
    let arquivo_path:string|null=null;
    if(arquivo){const ext=(arquivo.name.split('.').pop()??'bin').toLowerCase().replace(/[^a-z0-9]/g,'');arquivo_path=`${dataRef.slice(0,7)}/${crypto.randomUUID()}.${ext}`;const up=await supabase.storage.from('importacoes').upload(arquivo_path,arquivo,{contentType:arquivo.type||'application/octet-stream'});if(up.error)throw new Error('Não foi possível guardar o arquivo original. Tente novamente.');}
    const finais=linhas.flatMap((l,i)=>{const e=escolhas[i]!;if(l.duplicada||!e.incluir)return [];return [{data_atendimento:l.data_atendimento,paciente_id:e.paciente&&e.paciente!==NOVO?e.paciente:null,novo_paciente:e.paciente===NOVO?{nome:l.paciente_nome,cpf:l.cpf}:null,servico_id:e.servico||null,lembrar_alias:e.lembrar&&l.procedimento&&!l.servico_casou?l.procedimento:null,medico_id:e.medico||null,valor:l.valor,quantidade:l.quantidade,forma_pagamento:l.forma_pagamento,convenio:l.convenio}];});
-   const r=await confirmar({data:{data_ref:dataRef,origem,arquivo_path,linhas_lidas:brutas.length,linhas:finais,operador_id:operatorId}});
+   const origemDb=origem==='manual'?'manual' as const:origem==='planilha'?(arquivo?.name.toLowerCase().endsWith('.csv')?'csv' as const:'xlsx' as const):(arquivo?.type==='application/pdf'?'pdf_ia' as const:'imagem_ia' as const);
+   const r=await confirmar({data:{data_ref:dataRef,origem:origemDb,arquivo_path,linhas_lidas:brutas.length,linhas:finais,operador_id:operatorId}});
    toast.success(`${r.novas} atendimento(s) importado(s)${r.duplicadas?`, ${r.duplicadas} já existia(m)`:''}${r.pacientes_novos?`, ${r.pacientes_novos} paciente(s) novo(s)`:''}.`);
    const dia=finais[0]?.data_atendimento??dataRef;await navigate({to:'/',search:{data:dia===saoPauloDate()?undefined:dia}});
   }catch(e){toast.error(erroAmigavel(e));}finally{setBusy(false);}
