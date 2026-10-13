@@ -84,3 +84,60 @@ export function validarTransicao(de: StatusAtendimento, para: StatusAtendimento,
     if (impeditivos.length) throw new Error(`Não é possível aprovar: ${impeditivos.map(x => x.mensagem).join(' ')}`);
   }
 }
+
+export function validarCNPJ(valor: string | null | undefined): boolean {
+  const d = somenteDigitos(valor);
+  if (d.length !== 14 || /^(\d)\1{13}$/.test(d)) return false;
+  const calc = (n: number) => { let soma = 0, peso = n - 7; for (let i = 0; i < n; i++) { soma += Number(d[i]) * peso--; if (peso < 2) peso = 9; } const r = soma % 11; return r < 2 ? 0 : 11 - r; };
+  return calc(12) === Number(d[12]) && calc(13) === Number(d[13]);
+}
+export function formatarCNPJ(v: string) { const d = somenteDigitos(v); return d.length === 14 ? `${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8,12)}-${d.slice(12)}` : v; }
+
+/** Reasons that keep a patient registration from being invoice-ready. */
+export function pendenciasCadastro(p: { cpf: string | null; cep: string | null; logradouro: string | null; numero: string | null; municipio_ibge: string | null }) {
+  const m: string[] = [];
+  const cpf = somenteDigitos(p.cpf);
+  if (!cpf) m.push('sem CPF'); else if (!validarCPF(cpf)) m.push('CPF inválido');
+  const falta = ([['cep','CEP'],['logradouro','logradouro'],['numero','número'],['municipio_ibge','município']] as const).filter(([k]) => !(p[k] ?? '').trim()).map(([, l]) => l);
+  if (falta.length) m.push(`endereço sem ${falta.join(', ')}`);
+  return m;
+}
+
+export const variaveisTexto = ['nome','data','valor','link','consultorio'] as const;
+export function renderTexto(modelo: string, v: Partial<Record<(typeof variaveisTexto)[number], string>>) {
+  return modelo.replace(/\{\{\s*(\w+)\s*\}\}/g, (all, k: string) => (v as Record<string,string|undefined>)[k] ?? all);
+}
+
+/** Only the keys whose values changed — used to keep audit entries minimal. */
+export function diffCampos(antesIn: object | null | undefined, depoisIn: object | null | undefined) {
+  const antes = antesIn as Record<string, unknown> | null, depois = (depoisIn ?? {}) as Record<string, unknown>;
+  const a: Record<string, unknown> = {}, d: Record<string, unknown> = {};
+  for (const k of Object.keys(depois)) { if (k === 'updated_at' || k === 'created_at') continue; const x = antes?.[k] ?? null, y = depois[k] ?? null; if (JSON.stringify(x) !== JSON.stringify(y)) { a[k] = x; d[k] = y; } }
+  return { antes: antes ? a : null, depois: d };
+}
+
+export const aliquotaValida = (n: number) => Number.isFinite(n) && n >= 0 && n <= 33;
+
+export const camposFicha = ['nome','cpf','celular','email','cep','logradouro','numero','complemento','bairro','municipio_nome','uf','data_nascimento'] as const;
+export type CampoFicha = (typeof camposFicha)[number];
+export type Ficha = Record<CampoFicha, string | null>;
+const semAcento = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ');
+/** Normalizes AI output and drops any value that does not literally appear in the pasted text. */
+export function normalizarFicha(bruto: Partial<Record<string, unknown>>, texto: string): { ficha: Ficha; avisos: string[] } {
+  const ficha = {} as Ficha; const avisos: string[] = [];
+  const t = semAcento(texto), dig = somenteDigitos(texto);
+  for (const k of camposFicha) {
+    const v = bruto[k]; let s = typeof v === 'string' ? v.trim() : typeof v === 'number' ? String(v) : '';
+    if (!s || /^null$/i.test(s)) { ficha[k] = null; continue; }
+    const numerico = k === 'cpf' || k === 'cep' || k === 'celular';
+    if (numerico) s = somenteDigitos(s);
+    if (k === 'uf') s = s.toUpperCase();
+    const presente = numerico ? dig.includes(s) : k === 'data_nascimento' ? true : t.includes(semAcento(s));
+    if (!presente) { avisos.push(`“${k}” ignorado: não aparece no texto.`); ficha[k] = null; continue; }
+    ficha[k] = s;
+  }
+  if (ficha.cpf && !validarCPF(ficha.cpf)) avisos.push('O CPF da ficha é inválido — confira com o paciente.');
+  if (ficha.cep && ficha.cep.length !== 8) { avisos.push('O CEP da ficha não tem 8 dígitos.'); ficha.cep = null; }
+  if (ficha.uf && !/^[A-Z]{2}$/.test(ficha.uf)) ficha.uf = null;
+  return { ficha, avisos };
+}

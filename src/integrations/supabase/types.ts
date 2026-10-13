@@ -206,6 +206,24 @@ export type Database = {
           },
         ]
       }
+      nf_convites_acesso: {
+        Row: {
+          criado_por: string
+          email: string
+          expira_em: string
+        }
+        Insert: {
+          criado_por: string
+          email: string
+          expira_em?: string
+        }
+        Update: {
+          criado_por?: string
+          email?: string
+          expira_em?: string
+        }
+        Relationships: []
+      }
       nf_emitente: {
         Row: {
           cnpj: string | null
@@ -826,6 +844,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      nf_textos_envio: {
+        Row: {
+          atualizado_em: string
+          chave: string
+          conteudo: string
+        }
+        Insert: {
+          atualizado_em?: string
+          chave: string
+          conteudo: string
+        }
+        Update: {
+          atualizado_em?: string
+          chave?: string
+          conteudo?: string
+        }
+        Relationships: []
       }
       pend_arquivos: {
         Row: {
