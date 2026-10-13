@@ -39,7 +39,7 @@ export function chaveDedup(a: { data_atendimento: string; paciente_id: string; s
 
 export type Bloqueio = { codigo: 'cpf_ausente'|'cpf_invalido'|'endereco_incompleto'|'servico_ausente'|'servico_sem_parametro'|'mes_sem_aliquota'|'regra_especial_pendente'|'convenio'|'valor_invalido'; mensagem: string };
 export type DadosBloqueio = {
-  atendimento: { data_atendimento: string; valor: number; convenio: boolean; aprovado_em: string | null };
+  atendimento: { data_atendimento: string; valor: number; convenio: boolean; aprovado_em: string | null; autorizacao_liberada?: boolean };
   paciente: { cpf: string | null; cep: string | null; logradouro: string | null; numero: string | null; municipio_ibge: string | null } ;
   servico: { parametro_fiscal_id: string | null } | null;
   aliquotaDoMes: number | null;
@@ -55,7 +55,7 @@ export function calcularBloqueios(d: DadosBloqueio): Bloqueio[] {
   if (!d.servico) b.push({ codigo: 'servico_ausente', mensagem: 'Atendimento sem serviço.' });
   else if (!d.servico.parametro_fiscal_id) b.push({ codigo: 'servico_sem_parametro', mensagem: 'Serviço sem parâmetro fiscal.' });
   if (d.aliquotaDoMes == null) b.push({ codigo: 'mes_sem_aliquota', mensagem: `Alíquota do Simples de ${competenciaDe(d.atendimento.data_atendimento)} não informada.` });
-  if (d.regra?.ativo && d.regra.aguarda_autorizacao && !d.atendimento.aprovado_em) b.push({ codigo: 'regra_especial_pendente', mensagem: `Aguardando autorização (${d.regra.nome}).` });
+  if (d.regra?.ativo && d.regra.aguarda_autorizacao && !d.atendimento.aprovado_em && !d.atendimento.autorizacao_liberada) b.push({ codigo: 'regra_especial_pendente', mensagem: `Aguardando autorização (${d.regra.nome}).` });
   if (d.atendimento.convenio) b.push({ codigo: 'convenio', mensagem: 'Atendimento de convênio não gera nota.' });
   if (!(d.atendimento.valor > 0)) b.push({ codigo: 'valor_invalido', mensagem: 'Valor deve ser maior que zero.' });
   return b;
@@ -65,8 +65,8 @@ export const transicoes: Record<StatusAtendimento, StatusAtendimento[]> = {
   importado: ['cadastro_pendente','aguardando_pagamento','pago_ok','nao_gera_nota','cancelado'],
   cadastro_pendente: ['aguardando_pagamento','pago_ok','nao_gera_nota','cancelado'],
   aguardando_pagamento: ['cadastro_pendente','pago_ok','nao_gera_nota','cancelado'],
-  pago_ok: ['cadastro_pendente','aguardando_pagamento','aguardando_autorizacao','aprovado','cancelado'],
-  aguardando_autorizacao: ['aprovado','cancelado'],
+  pago_ok: ['cadastro_pendente','aguardando_pagamento','aguardando_autorizacao','aprovado','nao_gera_nota','cancelado'],
+  aguardando_autorizacao: ['pago_ok','aguardando_pagamento','aprovado','nao_gera_nota','cancelado'],
   aprovado: ['pago_ok','emitindo','cancelado'],
   emitindo: ['emitido','erro_emissao'],
   erro_emissao: ['aprovado','emitindo','cancelado'],
