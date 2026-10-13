@@ -21,6 +21,8 @@ import {useOperator} from '@/components/clinic/operator-context';
 import {Field,erroAmigavel} from '@/components/clinic/form-kit';
 import {PacienteDrawer,type Paciente} from '@/components/pacientes/paciente-drawer';
 import {useAbrirArquivo} from '@/components/notas/acoes-arquivo';
+import {EnvioBadge,ReenviarDialog,MensagemDialog,useCopiarLink,situacaoEnvio} from '@/components/notas/envio-ui';
+import {Send,MessageSquareText,Link2,Contact} from 'lucide-react';
 
 export const Route=createFileRoute('/_authenticated/_workspace/notas')({
  head:()=>pageHead('Notas emitidas','Consulte, baixe, cancele ou reemita as notas fiscais do consultório.'),
@@ -38,9 +40,10 @@ function NotasPage(){
  const {data:notas,isLoading}=useQuery({queryKey:['notas',de,ate,status,medico],queryFn:()=>listar({data:{de,ate,status:status===TODOS?null:status as StatusNota,medico_id:medico===TODOS?null:medico}})});
  const {data:p}=useQuery({queryKey:['painel-config'],queryFn:()=>painel()});
  const [cancelar,setCancelar]=useState<Nota|null>(null);const [reemitir,setReemitir]=useState<Nota|null>(null);const [sincronizando,setSincronizando]=useState(false);
+ const [reenviar,setReenviar]=useState<{n:Nota;titulo:string}|null>(null);const [mensagem,setMensagem]=useState<string|null>(null);const copiar=useCopiarLink();
  const visiveis=useMemo(()=>{const q=busca.trim().toLocaleLowerCase('pt-BR');const qd=busca.replace(/\D/g,'');
   return (notas??[]).filter(n=>{const env=n.envios??[];
-   if(canal==='nao'&&env.length)return false;if((canal==='email'||canal==='whatsapp')&&!env.some(e=>e.canal===canal))return false;
+   if(canal==='nao'&&!(n.status==='autorizada'&&['nao','sem_contato','erro'].includes(situacaoEnvio(n).chave)))return false;if((canal==='email'||canal==='whatsapp')&&!env.some(e=>e.canal===canal&&e.status!=='sem_contato'))return false;
    if(!q)return true;const pac=n.atendimento?.paciente;
    return (pac?.nome??'').toLocaleLowerCase('pt-BR').includes(q)||(qd.length>=3&&((pac?.cpf??'').includes(qd)||(n.numero??'').includes(qd)));});},[notas,busca,canal]);
  const recarregar=()=>qc.invalidateQueries({queryKey:['notas']});
@@ -53,7 +56,7 @@ function NotasPage(){
    <Field label="Até"><Input type="date" value={ate} onChange={e=>e.target.value&&setAte(e.target.value)}/></Field>
    <Field label="Situação"><Select value={status} onValueChange={setStatus}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value={TODOS}>Todas</SelectItem>{Object.entries(notaStatusUI).map(([k,v])=><SelectItem key={k} value={k}>{v.label}</SelectItem>)}</SelectContent></Select></Field>
    <Field label="Médico"><Select value={medico} onValueChange={setMedico}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value={TODOS}>Todos</SelectItem>{(p?.medicos??[]).map(m=><SelectItem key={m.id} value={m.id}>{m.nome}</SelectItem>)}</SelectContent></Select></Field>
-   <Field label="Envio"><Select value={canal} onValueChange={setCanal}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value={TODOS}>Todos</SelectItem><SelectItem value="email">E-mail</SelectItem><SelectItem value="whatsapp">WhatsApp</SelectItem><SelectItem value="nao">Não enviada</SelectItem></SelectContent></Select></Field>
+   <Field label="Envio"><Select value={canal} onValueChange={setCanal}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value={TODOS}>Todos</SelectItem><SelectItem value="email">E-mail</SelectItem><SelectItem value="whatsapp">WhatsApp</SelectItem><SelectItem value="nao">Não enviadas / Sem contato</SelectItem></SelectContent></Select></Field>
    <Field label="Buscar" className="notas-busca"><div className="search-field"><Search size={14}/><Input aria-label="Buscar nota" placeholder="Paciente, CPF ou número" value={busca} onChange={e=>setBusca(e.target.value)}/></div></Field>
   </div>
    <div className="table-scroll"><table className="appointments-table"><thead><tr><th>Número</th><th>Data</th><th>Paciente</th><th>Serviço</th><th>Valor</th><th>Nota</th><th>Envio</th><th aria-label="Ações"/></tr></thead><tbody>
@@ -66,17 +69,22 @@ function NotasPage(){
       <td>{n.atendimento?.servico?.nome??'—'}<div className="doctor-name">{n.atendimento?.medico?.nome}</div></td>
       <td className="whitespace-nowrap">{money(n.valor)}</td>
       <td><span className={`status-badge tone-${st.tone}`}>{st.label}</span>{n.status==='erro'&&n.mensagem_erro&&<div className="mt-1 max-w-[220px] whitespace-normal text-xs text-destructive">{n.mensagem_erro}</div>}{n.status==='cancelada'&&n.motivo_cancelamento&&<div className="mt-1 text-xs text-muted-foreground">{n.motivo_cancelamento}</div>}</td>
-      <td><span className="status-badge tone-muted">{(n.envios??[]).length?(n.envios??[]).map(e=>e.canal==='email'?'E-mail':'WhatsApp').join(' + '):'Não enviada'}</span></td>
+      <td><EnvioBadge n={n}/>{n.status==='autorizada'&&situacaoEnvio(n).chave==='sem_contato'&&<Button size="sm" variant="outline" className="mt-1.5 flex" onClick={()=>setReenviar({n,titulo:'Informar contato e enviar'})}><Contact/>Informar contato e enviar</Button>}</td>
       <td><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Ações da nota de ${pac?.nome}`}><MoreHorizontal/></Button></DropdownMenuTrigger><DropdownMenuContent align="end">
        <DropdownMenuItem disabled={!n.pdf_path} onSelect={()=>abrir(n.id,'pdf')}><FileText/>Ver PDF</DropdownMenuItem>
        <DropdownMenuItem disabled={!n.xml_path} onSelect={()=>abrir(n.id,'xml')}><FileCode2/>Baixar XML</DropdownMenuItem>
        {n.lote_id&&(n.status==='erro'||n.status==='processando'||n.status==='pendente')&&<DropdownMenuItem asChild><Link to="/notas/lote/$id" params={{id:n.lote_id}}><RefreshCcw/>Abrir lote</Link></DropdownMenuItem>}
+       <DropdownMenuItem disabled={n.status!=='autorizada'} onSelect={()=>setReenviar({n,titulo:(n.envios??[]).length?'Reenviar nota':'Enviar nota'})}><Send/>{(n.envios??[]).length?'Reenviar':'Enviar'}</DropdownMenuItem>
+       <DropdownMenuItem disabled={!(n.envios??[]).length} onSelect={()=>setMensagem(n.id)}><MessageSquareText/>Ver mensagem enviada</DropdownMenuItem>
+       <DropdownMenuItem disabled={n.status!=='autorizada'} onSelect={async()=>{await copiar(n.id);void recarregar();}}><Link2/>Copiar link do paciente</DropdownMenuItem>
        <DropdownMenuItem disabled={n.status!=='autorizada'} className="text-destructive" onSelect={()=>setCancelar(n)}><Ban/>Cancelar</DropdownMenuItem>
        <DropdownMenuItem disabled={n.status!=='autorizada'&&n.status!=='cancelada'} onSelect={()=>setReemitir(n)}><RefreshCcw/>Reemitir corrigida</DropdownMenuItem>
       </DropdownMenuContent></DropdownMenu></td></tr>;})}
    </tbody></table></div>
    <div className="table-footer"><span>{visiveis.length} nota{visiveis.length===1?'':'s'}</span><span>Total autorizado <strong className="total-value">{money(visiveis.filter(n=>n.status==='autorizada').reduce((s,n)=>s+n.valor,0))}</strong></span></div>
   </section>
+  {reenviar&&<ReenviarDialog nota={reenviar.n} titulo={reenviar.titulo} onClose={()=>setReenviar(null)} onDone={()=>{setReenviar(null);void recarregar();}}/>}
+  {mensagem&&<MensagemDialog notaId={mensagem} onClose={()=>setMensagem(null)}/>}
   {cancelar&&<CancelarDialog nota={cancelar} onClose={()=>setCancelar(null)} onDone={async()=>{setCancelar(null);await recarregar();}}/>}
   {reemitir&&<ReemitirDialog nota={reemitir} servicos={p?.servicos??[]} regras={p?.regras??[]} onClose={()=>{setReemitir(null);void recarregar();}}/>}
  </div>;
