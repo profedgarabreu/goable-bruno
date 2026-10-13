@@ -25,6 +25,7 @@ import { Route as AuthenticatedWorkspaceNotasRouteImport } from './routes/_authe
 import { Route as AuthenticatedWorkspacePacientesRouteImport } from './routes/_authenticated/_workspace/pacientes'
 import { Route as AuthenticatedWorkspacePendenciasRouteImport } from './routes/_authenticated/_workspace/pendencias'
 import { Route as ApiWebhooksEmissorRouteImport } from './routes/api/webhooks/emissor'
+import { Route as AuthenticatedWorkspaceNotasLoteIdRouteImport } from './routes/_authenticated/_workspace/notas_.lote.$id'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -113,6 +114,12 @@ const ApiWebhooksEmissorRoute = ApiWebhooksEmissorRouteImport.update({
   path: '/api/webhooks/emissor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedWorkspaceNotasLoteIdRoute =
+  AuthenticatedWorkspaceNotasLoteIdRouteImport.update({
+    id: '/notas_/lote/$id',
+    path: '/notas/lote/$id',
+    getParentRoute: () => AuthenticatedWorkspaceRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedWorkspaceIndexRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/pacientes': typeof AuthenticatedWorkspacePacientesRoute
   '/pendencias': typeof AuthenticatedWorkspacePendenciasRoute
   '/api/webhooks/emissor': typeof ApiWebhooksEmissorRoute
+  '/notas/lote/$id': typeof AuthenticatedWorkspaceNotasLoteIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedWorkspaceIndexRoute
@@ -145,6 +153,7 @@ export interface FileRoutesByTo {
   '/pacientes': typeof AuthenticatedWorkspacePacientesRoute
   '/pendencias': typeof AuthenticatedWorkspacePendenciasRoute
   '/api/webhooks/emissor': typeof ApiWebhooksEmissorRoute
+  '/notas/lote/$id': typeof AuthenticatedWorkspaceNotasLoteIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -164,6 +173,7 @@ export interface FileRoutesById {
   '/_authenticated/_workspace/pendencias': typeof AuthenticatedWorkspacePendenciasRoute
   '/api/webhooks/emissor': typeof ApiWebhooksEmissorRoute
   '/_authenticated/_workspace/': typeof AuthenticatedWorkspaceIndexRoute
+  '/_authenticated/_workspace/notas_/lote/$id': typeof AuthenticatedWorkspaceNotasLoteIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/pacientes'
     | '/pendencias'
     | '/api/webhooks/emissor'
+    | '/notas/lote/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/pacientes'
     | '/pendencias'
     | '/api/webhooks/emissor'
+    | '/notas/lote/$id'
   id:
     | '__root__'
     | '/_authenticated'
@@ -216,6 +228,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_workspace/pendencias'
     | '/api/webhooks/emissor'
     | '/_authenticated/_workspace/'
+    | '/_authenticated/_workspace/notas_/lote/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -341,6 +354,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWebhooksEmissorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/_workspace/notas_/lote/$id': {
+      id: '/_authenticated/_workspace/notas_/lote/$id'
+      path: '/notas/lote/$id'
+      fullPath: '/notas/lote/$id'
+      preLoaderRoute: typeof AuthenticatedWorkspaceNotasLoteIdRouteImport
+      parentRoute: typeof AuthenticatedWorkspaceRouteRoute
+    }
   }
 }
 
@@ -353,6 +373,7 @@ interface AuthenticatedWorkspaceRouteRouteChildren {
   AuthenticatedWorkspacePacientesRoute: typeof AuthenticatedWorkspacePacientesRoute
   AuthenticatedWorkspacePendenciasRoute: typeof AuthenticatedWorkspacePendenciasRoute
   AuthenticatedWorkspaceIndexRoute: typeof AuthenticatedWorkspaceIndexRoute
+  AuthenticatedWorkspaceNotasLoteIdRoute: typeof AuthenticatedWorkspaceNotasLoteIdRoute
 }
 
 const AuthenticatedWorkspaceRouteRouteChildren: AuthenticatedWorkspaceRouteRouteChildren =
@@ -368,6 +389,8 @@ const AuthenticatedWorkspaceRouteRouteChildren: AuthenticatedWorkspaceRouteRoute
     AuthenticatedWorkspacePendenciasRoute:
       AuthenticatedWorkspacePendenciasRoute,
     AuthenticatedWorkspaceIndexRoute: AuthenticatedWorkspaceIndexRoute,
+    AuthenticatedWorkspaceNotasLoteIdRoute:
+      AuthenticatedWorkspaceNotasLoteIdRoute,
   }
 
 const AuthenticatedWorkspaceRouteRouteWithChildren =
