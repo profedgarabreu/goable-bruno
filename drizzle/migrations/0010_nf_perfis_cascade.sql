@@ -1,0 +1,1 @@
+ALTER TABLE public.nf_perfis ADD CONSTRAINT nf_perfis_user_fk FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
