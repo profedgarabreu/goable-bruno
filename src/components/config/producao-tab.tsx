@@ -1,5 +1,4 @@
 import {useState} from 'react';
-import {Link} from '@tanstack/react-router';
 import {useQuery,useQueryClient} from '@tanstack/react-query';
 import {useServerFn} from '@tanstack/react-start';
 import {toast} from 'sonner';
@@ -30,7 +29,7 @@ export function ProducaoTab(){
    <span className="mt-0.5">{icone[i.status]}</span>
    <div className="min-w-[220px] flex-1"><div className="font-medium">{i.n}. {i.titulo}</div><div className="text-sm text-muted-foreground">{i.explicacao}</div>
     {i.n===9&&<label className="mt-2 flex items-center gap-2 text-sm"><Switch checked={data.somenteEmail} onCheckedChange={alternar}/>Só e-mail por enquanto</label>}</div>
-   {i.link&&i.status!=='ok'&&<Button asChild variant="outline" size="sm"><Link to={i.link.to} search={i.link.aba?{aba:i.link.aba} as never:undefined}>{i.link.rotulo}</Link></Button>}
+   {i.link&&i.status!=='ok'&&<Button asChild variant="outline" size="sm"><a href={i.link.aba?`${i.link.to}?aba=${i.link.aba}`:i.link.to}>{i.link.rotulo}</a></Button>}
   </li>)}</ol>}
   <div className="status-card flex flex-wrap items-center justify-between gap-3"><div className="text-[15px]">{data?.modo==='producao'?'O sistema já está em produção.':liberado?'Todos os itens estão concluídos.':'O botão é liberado quando todos os itens estiverem concluídos.'}</div>
    <Button variant="action" size="lg" disabled={!liberado||data?.modo==='producao'} onClick={()=>{setTexto('');setAberto(true);}}><Rocket/>Ativar produção</Button></div>

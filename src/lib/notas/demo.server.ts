@@ -4,7 +4,7 @@ import {montarNota} from './nota';
 import {chaveFicticia} from './emissor/mock';
 import {competenciaDe,type Genero} from './rules';
 import {planoDia,diasUteis,HIST_TAG} from './demo';
-import {okList,ok} from './service.server';
+import {okList,ok,okOne} from './service.server';
 type Db=SupabaseClient<Database>;
 
 const D=(n:string)=>`d0000000-0000-0000-0000-0000000000${n}`;
@@ -39,11 +39,11 @@ export async function prepararDemo(db:Db){
   db.from('nf_regras_especiais').select('*'),db.from('nf_servicos').select('*').eq('ativo',true),db.from('nf_medicos').select('id,nome').eq('ativo',true),
   db.from('nf_emitente').select('*').single(),db.from('nf_parametros_fiscais').select('*').eq('ativo',true).order('vigente_desde',{ascending:false}).limit(1).single(),
   db.from('nf_aliquota_mes').select('competencia,aliquota_simples'),db.from('nf_operadores').select('id').eq('ativo',true).order('ordem').limit(1)]);
- const e=ok(emit);if(e.emissor_modo!=='mock')throw new Error('A demonstração só pode ser preparada no modo Demonstração.');
+ const e=okOne(emit);if(e.emissor_modo!=='mock')throw new Error('A demonstração só pode ser preparada no modo Demonstração.');
  const amagis=okList(regras).find(r=>r.nome==='AMAGIS');
  const srv=okList(servicos);const porNome=(n:string)=>srv.find(s=>s.nome===n);
  const medico=okList(medicos).find(m=>m.nome.includes('Bruno'))??okList(medicos)[0];
- const operador=okList(ops)[0]?.id??null;const parametro=ok(param);
+ const operador=okList(ops)[0]?.id??null;const parametro=okOne(param);
  const aliquota=new Map(okList(aliqs).map(a=>[a.competencia,Number(a.aliquota_simples)]));
 
  // 1. Patients (fixed ids → never duplicated).
@@ -95,7 +95,7 @@ export async function prepararDemo(db:Db){
   ok(await db.from('nf_notas').update({status:'substituida',motivo_cancelamento:'Valor incorreto'}).eq('id',n.id));
   const ref=crypto.randomUUID();const num=ok(await db.rpc('nf_mock_proximo_numero'));
   const payload={...(n.payload_enviado as Record<string,unknown>),referencia:ref} as Json;
-  const nova=ok(await db.from('nf_notas').insert({atendimento_id:n.atendimento_id,ambiente:'mock',ref_externa:ref,status:'autorizada',numero:String(num),chave_acesso:chaveFicticia(ref),emitida_em:`${n.atendimento.data_atendimento}T19:30:00-03:00`,payload_enviado:payload,parametro_fiscal_id:n.parametro_fiscal_id,aliquota_simples_usada:n.aliquota_simples_usada,descricao_usada:n.descricao_usada}).select('id').single());
+  const nova=okOne(await db.from('nf_notas').insert({atendimento_id:n.atendimento_id,ambiente:'mock',ref_externa:ref,status:'autorizada',numero:String(num),chave_acesso:chaveFicticia(ref),emitida_em:`${n.atendimento.data_atendimento}T19:30:00-03:00`,payload_enviado:payload,parametro_fiscal_id:n.parametro_fiscal_id,aliquota_simples_usada:n.aliquota_simples_usada,descricao_usada:n.descricao_usada}).select('id').single());
   ok(await db.from('nf_notas').update({substituida_por:nova.id}).eq('id',n.id));notas++;}
 
  return {pacientes_criados:pac.length-antes,atendimentos_hoje_criados:hojeCriados,atendimentos_hoje_movidos:mover.length,dias_gerados:novos.length,dias_ja_existentes:dias.length-novos.length,atendimentos,notas,envios};

@@ -1,7 +1,7 @@
 import {createServerFn} from '@tanstack/react-start';
 import {z} from 'zod';
 import {requireSupabaseAuth} from '@/integrations/supabase/auth-middleware';
-import {exigirPapel,ok,okList,auditar,competenciaAtual} from './service.server';
+import {exigirPapel,ok,okOne,okList,auditar,competenciaAtual} from './service.server';
 import {avaliarChecklist,type EstadoChecklist} from './producao';
 
 const op={operador_id:z.string().uuid().nullish()};
@@ -68,7 +68,7 @@ async function estadoAtual(db:Parameters<typeof exigirPapel>[0]):Promise<EstadoC
   supabaseAdmin.from('user_roles').select('user_id').eq('role','consultorio'),
   supabaseAdmin.auth.admin.listUsers({perPage:200}),
  ]);
- const e=ok(emit);const a=ok(aliq);const agora=Date.now();
+ const e=okOne(emit);const a=ok(aliq);const agora=Date.now();
  const ativos=new Set((usuarios.data?.users??[]).filter(u=>!(u.banned_until&&new Date(u.banned_until).getTime()>agora)).map(u=>u.id));
  const env=(k:string)=>!!process.env[k];
  return {
