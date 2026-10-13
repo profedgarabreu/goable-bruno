@@ -58,10 +58,10 @@ export const salvarPaciente=createServerFn({method:'POST'}).middleware([requireS
  if(!data.id&&!data.dados.nome)throw new Error('Informe o nome.');
  if(data.dados.cpf){const dup=ok(await db.from('nf_pacientes').select('id,nome').eq('cpf',data.dados.cpf).neq('id',data.id??'00000000-0000-0000-0000-000000000000').maybeSingle());if(dup)return {erro:'cpf_duplicado' as const,existente:dup};}
  let antes=null,depois;
- if(data.id){antes=ok(await db.from('nf_pacientes').select('*').eq('id',data.id).maybeSingle());if(!antes)throw new Error('Paciente não encontrado.');depois=ok(await db.from('nf_pacientes').update(data.dados).eq('id',data.id).select('*').single());}
- else depois=ok(await db.from('nf_pacientes').insert({...data.dados,nome:data.dados.nome!,origem:data.dados.origem??'manual'}).select('*').single());
+ if(data.id){antes=ok(await db.from('nf_pacientes').select('*').eq('id',data.id).maybeSingle());if(!antes)throw new Error('Paciente não encontrado.');depois=ok(await db.from('nf_pacientes').update(data.dados as never).eq('id',data.id).select('*').single());}
+ else depois=ok(await db.from('nf_pacientes').insert({...data.dados,nome:data.dados.nome!,origem:data.dados.origem??'manual'} as never).select('*').single());
  const d=diffCampos(antes,depois);
- await auditar(db,data.operador_id,data.id?'editar':'criar','nf_pacientes',depois.id,d.antes,d.depois);
+ await auditar(db,data.operador_id,data.id?'editar':'criar','nf_pacientes',(depois as {id:string}).id,d.antes,d.depois);
  return {erro:null,paciente:depois};
 });
 

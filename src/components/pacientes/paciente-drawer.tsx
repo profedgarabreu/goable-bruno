@@ -36,7 +36,7 @@ export function PacienteDrawer({paciente,regras,onClose,onSaved,onAbrirExistente
    toast.success(paciente?'Cadastro atualizado.':'Paciente cadastrado.');await onSaved();onClose();
   }catch(e){toast.error(erroAmigavel(e));}finally{setBusy(false);}
  }
- return <EditDrawer open onOpenChange={o=>!o&&onClose()} title={paciente?paciente.nome:'Novo paciente'} description={paciente?.demo?'Paciente fictício de demonstração.':undefined} onSave={save} saving={busy} canSave={f.nome.trim().length>=2&&!cpfErr&&!emailErr}>
+ return <EditDrawer open onOpenChange={o=>!o&&onClose()} title={paciente?paciente.nome:'Novo paciente'} {...(paciente?.demo?{description:'Paciente fictício de demonstração.'}:{})} onSave={save} saving={busy} canSave={f.nome.trim().length>=2&&!cpfErr&&!emailErr}>
   <Button variant="outline" size="lg" className="h-12 justify-start text-base" onClick={()=>setFicha(true)}><FileText/>Completar pela ficha do ProntMed</Button>
   {dup&&<div className="status-card is-blocked text-[15px]" role="alert">Já existe um paciente com este CPF: <strong>{dup.nome}</strong>. <button type="button" className="font-semibold underline" onClick={()=>onAbrirExistente(dup.id)}>Abrir cadastro existente</button></div>}
   <Field label="Nome completo"><Input value={f.nome} onChange={x=>set('nome',x.target.value)}/></Field>

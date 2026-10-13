@@ -109,7 +109,8 @@ export function renderTexto(modelo: string, v: Partial<Record<(typeof variaveisT
 }
 
 /** Only the keys whose values changed — used to keep audit entries minimal. */
-export function diffCampos(antes: Record<string, unknown> | null, depois: Record<string, unknown>) {
+export function diffCampos(antesIn: object | null | undefined, depoisIn: object | null | undefined) {
+  const antes = antesIn as Record<string, unknown> | null, depois = (depoisIn ?? {}) as Record<string, unknown>;
   const a: Record<string, unknown> = {}, d: Record<string, unknown> = {};
   for (const k of Object.keys(depois)) { if (k === 'updated_at' || k === 'created_at') continue; const x = antes?.[k] ?? null, y = depois[k] ?? null; if (JSON.stringify(x) !== JSON.stringify(y)) { a[k] = x; d[k] = y; } }
   return { antes: antes ? a : null, depois: d };
