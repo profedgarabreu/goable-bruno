@@ -7,16 +7,15 @@ import {statusAtendimento,validarTransicao,validarCPF,somenteDigitos,type Status
 
 const op={operador_id:z.string().uuid().nullish()};
 const id=z.string().uuid();
-const base=()=>createServerFn({method:'POST'}).middleware([requireSupabaseAuth]);
 const cpfOpt=z.string().nullish().transform(v=>somenteDigitos(v)||null).refine(v=>v===null||validarCPF(v),'CPF inválido');
 
-export const listarOperadores=base().handler(async({context})=>{await exigirPapel(context.supabase,context.userId);return okList(await context.supabase.from('nf_operadores').select('id,nome,ativo,ordem').order('ordem'));});
+export const listarOperadores=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).handler(async({context})=>{await exigirPapel(context.supabase,context.userId);return okList(await context.supabase.from('nf_operadores').select('id,nome,ativo,ordem').order('ordem'));});
 
-export const getConfigFiscalAtual=base().handler(async({context})=>{await exigirPapel(context.supabase,context.userId);return configFiscal(context.supabase);});
+export const getConfigFiscalAtual=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).handler(async({context})=>{await exigirPapel(context.supabase,context.userId);return configFiscal(context.supabase);});
 
-export const checarBloqueios=base().inputValidator(z.object({atendimento_id:id})).handler(async({context,data})=>{await exigirPapel(context.supabase,context.userId);return (await bloqueiosDe(context.supabase,data.atendimento_id)).bloqueios;});
+export const checarBloqueios=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({atendimento_id:id})).handler(async({context,data})=>{await exigirPapel(context.supabase,context.userId);return (await bloqueiosDe(context.supabase,data.atendimento_id)).bloqueios;});
 
-export const transicionarStatus=base().inputValidator(z.object({atendimento_id:id,novo_status:z.enum(statusAtendimento as [StatusAtendimento,...StatusAtendimento[]]),motivo:z.string().max(500).optional(),...op})).handler(async({context,data})=>{
+export const transicionarStatus=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({atendimento_id:id,novo_status:z.enum(statusAtendimento as [StatusAtendimento,...StatusAtendimento[]]),motivo:z.string().max(500).optional(),...op})).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId);
  const {atendimento,bloqueios}=await bloqueiosDe(db,data.atendimento_id);
  validarTransicao(atendimento.status,data.novo_status,bloqueios);
@@ -30,7 +29,7 @@ export const transicionarStatus=base().inputValidator(z.object({atendimento_id:i
  return {ok:true,status:data.novo_status};
 });
 
-export const registrarAuditoria=base().inputValidator(z.object({acao:z.string().min(1).max(80),entidade:z.string().regex(/^nf_[a-z_]+$/),entidade_id:z.string().max(100).nullable(),antes:z.unknown(),depois:z.unknown(),...op})).handler(async({context,data})=>{await exigirPapel(context.supabase,context.userId);await auditar(context.supabase,data.operador_id,data.acao,data.entidade,data.entidade_id,data.antes,data.depois);return {ok:true};});
+export const registrarAuditoria=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({acao:z.string().min(1).max(80),entidade:z.string().regex(/^nf_[a-z_]+$/),entidade_id:z.string().max(100).nullable(),antes:z.unknown(),depois:z.unknown(),...op})).handler(async({context,data})=>{await exigirPapel(context.supabase,context.userId);await auditar(context.supabase,data.operador_id,data.acao,data.entidade,data.entidade_id,data.antes,data.depois);return {ok:true};});
 
 // Generic list/create/edit for the M1 back-office entities (screens arrive in M2).
 const schemas={
@@ -43,9 +42,9 @@ const schemas={
 type Tabela=keyof typeof schemas;
 const tabela=z.enum(Object.keys(schemas) as [Tabela,...Tabela[]]);
 
-export const listarCadastro=base().inputValidator(z.object({tabela})).handler(async({context,data})=>{await exigirPapel(context.supabase,context.userId);return okList(await context.supabase.from(data.tabela).select('*').order('created_at')) as unknown as {[k:string]:Json}[];});
+export const listarCadastro=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({tabela})).handler(async({context,data})=>{await exigirPapel(context.supabase,context.userId);return okList(await context.supabase.from(data.tabela).select('*').order('created_at')) as unknown as {[k:string]:Json}[];});
 
-export const salvarCadastro=base().inputValidator(z.object({tabela,id:id.optional(),dados:z.record(z.string(),z.unknown()),...op})).handler(async({context,data})=>{
+export const salvarCadastro=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({tabela,id:id.optional(),dados:z.record(z.string(),z.unknown()),...op})).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId);
  const schema=schemas[data.tabela];
  const dados=(data.id?schema.partial():schema).parse(data.dados) as Record<string,unknown>;
@@ -59,14 +58,14 @@ export const salvarCadastro=base().inputValidator(z.object({tabela,id:id.optiona
  return depois as {[k:string]:Json};
 });
 
-export const editarParametroFiscal=base().inputValidator(z.object({id,dados:z.record(z.string(),z.unknown()),...op})).handler(async({context,data})=>{
+export const editarParametroFiscal=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({id,dados:z.record(z.string(),z.unknown()),...op})).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId,true);
  const novo=ok(await db.rpc('nf_parametro_nova_versao',{_id:data.id,_dados:data.dados as never}));
  await auditar(db,data.operador_id,'nova_versao','nf_parametros_fiscais',novo,{id:data.id},data.dados);
  return {id:novo};
 });
 
-export const limparDadosDemo=base().inputValidator(z.object({...op})).handler(async({context,data})=>{
+export const limparDadosDemo=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({...op})).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId,true);
  const at=okList(await db.from('nf_atendimentos').delete().eq('demo',true).select('id'));
  const pac=okList(await db.from('nf_pacientes').delete().eq('demo',true).select('id'));
