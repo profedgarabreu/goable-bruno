@@ -32,3 +32,4 @@
 - Keep mock-issuer state in `nf_notas` (sent time, number, key), because server workers are stateless.
 - Deliver notes only through the channel adapters in `src/lib/notas/envio/` (real sender chosen only when its secrets exist, otherwise simulated) and record every attempt in `nf_envios` with the rendered content, so delivery is auditable without real providers.
 - Validate public patient-link CPF digits only via the service-role-only `nf_link_paciente_verificar` function (row lock + failure counter), so guesses are serialized and anon never reads note tables.
+- Build monthly exports from `carregarMes` in `src/lib/notas/historico.server.ts` with aggregation pure in `historico.ts`; the month ZIP is zipped in the browser from signed URLs, so history screens and every export always agree on the same totals.
