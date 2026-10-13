@@ -119,7 +119,8 @@ export const listarNotas=createServerFn({method:'POST'}).middleware([requireSupa
 export const urlArquivoNota=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({nota_id:uuid,tipo:z.enum(['pdf','xml'])})).handler(async({context,data})=>{
  const db=context.supabase;await exigirPapel(db,context.userId);
  const n=okOne(await db.from('nf_notas').select('pdf_path,xml_path,numero').eq('id',data.nota_id).single());
- const path=data.tipo==='pdf'?n.pdf_path:n.xml_path;if(!path)throw new Error('Arquivo ainda não disponível.');
+ const {garantirArquivos}=await import('./arquivos.server');const f=await garantirArquivos(db,data.nota_id);
+ const path=data.tipo==='pdf'?f.pdf_path:f.xml_path;if(!path)throw new Error('Arquivo ainda não disponível.');
  const r=await db.storage.from('notas').createSignedUrl(path,600,data.tipo==='xml'?{download:`nfse-${n.numero??data.nota_id}.xml`}:undefined);
  if(r.error)throw new Error('Não foi possível gerar o link do arquivo.');
  return {url:r.data.signedUrl};

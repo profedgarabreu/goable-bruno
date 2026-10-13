@@ -39,8 +39,8 @@ export const pacoteMes=createServerFn({method:'POST'}).middleware([requireSupaba
  const autorizadas=rows.filter(r=>r.status==='autorizada');
  const paths=okList(autorizadas.length?await db.from('nf_notas').select('id,pdf_path,xml_path').in('id',autorizadas.map(r=>r.id)):{data:[],error:null});
  const porId=new Map(paths.map(p=>[p.id,p]));
- const arquivos:{nome:string;url:string}[]=[];
- for(const r of autorizadas){const p=porId.get(r.id);for(const tipo of ['pdf','xml'] as const){const path=tipo==='pdf'?p?.pdf_path:p?.xml_path;if(!path)continue;const s=await db.storage.from('notas').createSignedUrl(path,600);if(s.error)throw new Error('Não foi possível preparar os arquivos das notas.');arquivos.push({nome:`${tipo}/${nomeArquivoNota(r.numero,r.paciente,tipo)}`,url:s.data.signedUrl});}}
+ const arquivos:{nome:string;url:string|null;nota_id:string;tipo:'pdf'|'xml'}[]=[];
+ for(const r of autorizadas){const p=porId.get(r.id);for(const tipo of ['pdf','xml'] as const){const path=tipo==='pdf'?p?.pdf_path:p?.xml_path;if(!path){arquivos.push({nome:`${tipo}/${nomeArquivoNota(r.numero,r.paciente,tipo)}`,url:null,nota_id:r.id,tipo});continue;}const s=await db.storage.from('notas').createSignedUrl(path,600);if(s.error)throw new Error('Não foi possível preparar os arquivos das notas.');arquivos.push({nome:`${tipo}/${nomeArquivoNota(r.numero,r.paciente,tipo)}`,url:s.data.signedUrl,nota_id:r.id,tipo});}}
  const planilha=nomeExportacao(data.competencia,modo,'xlsx');
  const nome=nomeExportacao(data.competencia,modo,'zip');
  await auditar(db,data.operador_id,'exportacao_mes','nf_notas',null,null,{tipo:'zip',competencia:data.competencia,arquivo:nome,notas:autorizadas.length,arquivos:arquivos.length});

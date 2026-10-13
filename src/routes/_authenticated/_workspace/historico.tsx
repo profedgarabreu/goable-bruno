@@ -15,6 +15,7 @@ import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue} from '@/compo
 import {money,pageHead} from '@/lib/clinic';
 import {useOperator} from '@/components/clinic/operator-context';
 import {erroAmigavel} from '@/components/clinic/form-kit';
+import {urlArquivoNota} from '@/lib/notas/emissao.functions';
 import {historicoMes,exportarPlanilhaMes,pacoteMes,exportarCsvMes} from '@/lib/notas/historico.functions';
 import {deslocarCompetencia,variacao,formaLabel,ehCancelada,dataBR,type Quebra} from '@/lib/notas/historico';
 import {competenciaLabel} from '@/components/config/shared';
@@ -40,6 +41,7 @@ function Historico(){
  const filtros={competencia:comp,medico_id:medico||null,servico_id:servico||null,forma:(forma||null) as 'pix'|null};
  const fn=useServerFn(historicoMes);
  const {data,isLoading,error}=useQuery({queryKey:['historico',filtros],queryFn:()=>fn({data:filtros})});
+ const urlFn=useServerFn(urlArquivoNota);
  const fx={xlsx:useServerFn(exportarPlanilhaMes),zip:useServerFn(pacoteMes),csv:useServerFn(exportarCsvMes)};
  const [exportando,setExportando]=useState<string|null>(null);const [prog,setProg]=useState<{feito:number;total:number}|null>(null);
  async function exportar(tipo:'xlsx'|'zip'|'csv'){
@@ -50,7 +52,7 @@ function Historico(){
    else{
     const r=await fx.zip({data:{...filtros,operador_id:operatorId}});const files:Record<string,Uint8Array>={[r.planilha.nome]:deB64(r.planilha.base64)};
     setProg({feito:0,total:r.arquivos.length});
-    for(const [i,a] of r.arquivos.entries()){const res=await fetch(a.url);if(!res.ok)throw new Error(`Não foi possível baixar ${a.nome}.`);files[a.nome]=new Uint8Array(await res.arrayBuffer());setProg({feito:i+1,total:r.arquivos.length});}
+    for(const [i,a] of r.arquivos.entries()){const url=a.url??(await urlFn({data:{nota_id:a.nota_id,tipo:a.tipo}})).url;const res=await fetch(url);if(!res.ok)throw new Error(`Não foi possível baixar ${a.nome}.`);files[a.nome]=new Uint8Array(await res.arrayBuffer());setProg({feito:i+1,total:r.arquivos.length});}
     baixar(r.nome,new Blob([zipSync(files,{level:6})],{type:'application/zip'}));
    }
    toast.success('Exportação concluída.');
