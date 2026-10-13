@@ -1,7 +1,6 @@
-export const operators = ['Marli', 'Cíntia'] as const;
-export type Operator = typeof operators[number];
+export type Operator = { id: string; nome: string };
 export const operatorKey = 'nf_operador';
-export function validOperator(value: unknown): value is Operator { return value === 'Marli' || value === 'Cíntia'; }
+export function parseOperator(raw: string | null): Operator | null { try { const v = JSON.parse(raw ?? ''); return v && typeof v.id === 'string' && /^[0-9a-f-]{36}$/i.test(v.id) && typeof v.nome === 'string' && v.nome.trim() ? { id: v.id, nome: v.nome } : null; } catch { return null; } }
 export function maskCpf(cpf: string) { const digits = cpf.replace(/\D/g, ''); return digits.length === 11 ? `***.${digits.slice(3,6)}.${digits.slice(6,9)}-**` : 'CPF não informado'; }
 export const money = (value: number) => value.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
 export function saoPauloDate(date = new Date()) { return new Intl.DateTimeFormat('en-CA', { timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit' }).format(date); }

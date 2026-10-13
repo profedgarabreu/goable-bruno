@@ -14,3 +14,9 @@ M1–M7 are out of scope for this delivery. Fiscal seed retained for M1, not imp
 - [x] Verify acceptance criteria, security and responsive layouts; deliver detailed report and client URL.
 
 Confirmation-email delivery to a real mailbox is not verified; confirmation remains enabled. Temporary QA accounts were removed. Authorization roles are in user_roles rather than nf_perfis for safety. First account is the Goable administrator. Extra public routes /auth (alias) and /senha support managed auth and password recovery.
+# M1 — Banco do módulo de notas
+- [x] nf_ tables, enums, updated_at triggers, hash_dedup, RLS (admin all; clinic read/write operational; fiscal config read-only), no anon grants.
+- [x] Seeds: fiscal data, rates 2026-09/10, services with gender, rules, operators, doctors, 12 demo patients, 10 demo appointments.
+- [x] Private buckets notas and importacoes.
+- [x] Core server functions, CRUD backend, limparDadosDemo, operator screen reading nf_operadores.
+- [x] Tests and live permission checks.
