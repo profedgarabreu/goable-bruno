@@ -8,7 +8,7 @@ export async function exigirPapel(db:Db,userId:string,somenteAdmin=false){
  if(!somenteAdmin&&cons===true)return 'consultorio' as const;
  throw new Error(somenteAdmin?'Somente a administração Goable pode fazer isso.':'Acesso não autorizado.');
 }
-export function ok<T>(r:{data:T;error:{message:string}|null}):T{if(r.error)throw new Error(r.error.message);return r.data as NonNullable<T>;}
+export function ok<T>(r:{data:T;error:{message:string}|null}):T{if(r.error)throw new Error(r.error.message);return r.data;}
 export function okList<T>(r:{data:T[]|null;error:{message:string}|null}):T[]{if(r.error)throw new Error(r.error.message);return r.data??[];}
 export async function auditar(db:Db,operadorId:string|null|undefined,acao:string,entidade:string,id:string|null,antes:unknown,depois:unknown){
  ok(await db.from('nf_auditoria').insert({operador_id:operadorId??null,acao,entidade,entidade_id:id,antes:(antes??null) as Json,depois:(depois??null) as Json}));
