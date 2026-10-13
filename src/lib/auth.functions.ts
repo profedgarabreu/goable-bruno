@@ -4,8 +4,11 @@ import {requireSupabaseAuth} from '@/integrations/supabase/auth-middleware';
 export const createClinicUser=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({email:z.string().email(),nome:z.string().min(2),password:z.string().min(8)})).handler(async({context,data})=>{
  const {data:allowed,error}=await context.supabase.rpc('nf_has_role',{_user_id:context.userId,_role:'admin_goable'});
  if(error||!allowed)throw new Error('Somente a administração Goable pode criar acessos.');
+ const email=data.email.trim().toLowerCase();
+ const {error:conviteErr}=await context.supabase.from('nf_convites_acesso').upsert({email,criado_por:context.userId,expira_em:new Date(Date.now()+600000).toISOString()});
+ if(conviteErr)return {ok:false,message:'Não foi possível preparar o acesso. Tente novamente.'};
  const {supabaseAdmin}=await import('@/integrations/supabase/client.server');
- const {error:creationError}=await supabaseAdmin.auth.admin.createUser({email:data.email,password:data.password,email_confirm:false,user_metadata:{nome:data.nome},app_metadata:{nf_admin_created:true}});
+ const {error:creationError}=await supabaseAdmin.auth.admin.createUser({email,password:data.password,email_confirm:false,user_metadata:{nome:data.nome},app_metadata:{nf_admin_created:true}});
  if(creationError)return {ok:false,message:'Não foi possível criar o acesso. Confira se o e-mail já está cadastrado.'};
  return {ok:true,message:'Acesso criado. Solicite a confirmação do e-mail na tela de login.'};
 });
