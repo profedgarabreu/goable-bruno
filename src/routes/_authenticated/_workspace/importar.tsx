@@ -19,7 +19,7 @@ import {listarCadastro} from '@/lib/notas/functions';
 import {painelConfiguracoes} from '@/lib/notas/config.functions';
 import {camposMapeamento,assinaturaCabecalho,adivinharMapeamento,formasPagamento,normalizarTexto,type CampoMapa,type FormaPagamento} from '@/lib/notas/importacao';
 
-export const Route=createFileRoute('/_authenticated/_workspace/importar')({head:()=>pageHead('Importar','Traga os atendimentos do ProntMed por planilha, PDF, print ou digitação.'),component:Importar});
+export const Route=createFileRoute('/_authenticated/_workspace/importar')({validateSearch:(s:Record<string,unknown>)=>({modo:s['modo']==='manual'?'manual' as const:undefined}),head:()=>pageHead('Importar','Traga os atendimentos do ProntMed por planilha, PDF, print ou digitação.'),component:Importar});
 
 type Origem='planilha'|'relatorio_ia'|'manual';
 type Previa=Awaited<ReturnType<typeof previaImportacao>>;
@@ -27,6 +27,7 @@ type Escolha={paciente:string;servico:string;lembrar:boolean;medico:string;inclu
 const NOVO='__novo__';
 
 function Importar(){
+ const {modo:modoInicial}=Route.useSearch();
  const [passo,setPasso]=useState<1|2|3>(1);const [dataRef,setDataRef]=useState(saoPauloDate());
  const [origem,setOrigem]=useState<Origem>('planilha');const [arquivo,setArquivo]=useState<File|null>(null);
  const [brutas,setBrutas]=useState<LinhaBruta[]>([]);const [previa,setPrevia]=useState<Previa|null>(null);const [escolhas,setEscolhas]=useState<Escolha[]>([]);
@@ -48,7 +49,7 @@ function Importar(){
 function Passo1({dataRef,setDataRef,busy,onLinhas}:{dataRef:string;setDataRef:(d:string)=>void;busy:boolean;onLinhas:(l:LinhaBruta[],o:Origem,f:File|null)=>Promise<void>}){
  return <div className="grid gap-5">
   <Field label="Data de referência" className="max-w-[240px]"><Input type="date" value={dataRef} onChange={e=>e.target.value&&setDataRef(e.target.value)}/></Field>
-  <Tabs defaultValue="planilha"><TabsList className="h-auto flex-wrap gap-1 bg-muted p-1 mb-5"><TabsTrigger value="planilha" className="px-3 py-2 text-[15px]"><FileSpreadsheet className="mr-1.5" size={16}/>Planilha (CSV/XLSX)</TabsTrigger><TabsTrigger value="relatorio" className="px-3 py-2 text-[15px]"><FileImage className="mr-1.5" size={16}/>PDF ou print</TabsTrigger><TabsTrigger value="manual" className="px-3 py-2 text-[15px]"><PencilLine className="mr-1.5" size={16}/>Manual</TabsTrigger></TabsList>
+  <Tabs defaultValue={modoInicial??"planilha"}><TabsList className="h-auto flex-wrap gap-1 bg-muted p-1 mb-5"><TabsTrigger value="planilha" className="px-3 py-2 text-[15px]"><FileSpreadsheet className="mr-1.5" size={16}/>Planilha (CSV/XLSX)</TabsTrigger><TabsTrigger value="relatorio" className="px-3 py-2 text-[15px]"><FileImage className="mr-1.5" size={16}/>PDF ou print</TabsTrigger><TabsTrigger value="manual" className="px-3 py-2 text-[15px]"><PencilLine className="mr-1.5" size={16}/>Manual</TabsTrigger></TabsList>
    <TabsContent value="planilha"><Planilha busy={busy} onLinhas={(l,f)=>onLinhas(l,'planilha',f)}/></TabsContent>
    <TabsContent value="relatorio"><Relatorio busy={busy} onLinhas={(l,f)=>onLinhas(l,'relatorio_ia',f)}/></TabsContent>
    <TabsContent value="manual"><Manual busy={busy} onLinhas={l=>onLinhas(l,'manual',null)}/></TabsContent>
